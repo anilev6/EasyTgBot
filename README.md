@@ -82,6 +82,8 @@ Ctrl+C to exit.
 
 ## # TODO
 
+- `/admin` -> *mailing service*
+
 - `/admin` -> *bot settings*
 
 - `/admin` -> *bot settings* -> *add/remove peope* -> (maybe also through exel file) - if a list of users exists in the file, lock the access to the bot.
