@@ -1,4 +1,4 @@
-# Easy Telegram Bot 🎯  -  *easy-tg-bot*
+# Easy Telegram Bot 🎯 **easy-tg-bot**
 
 This is my own Telegram bot framework for faster development and updating my bots.
 
