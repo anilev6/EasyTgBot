@@ -94,7 +94,7 @@ def validate_text_file(file_path) -> tuple:
 
     finally:
         result = code, VALIDATION_MESSAGE.format(code)
-        logger.info(result)
+        logger.info(result[1])
         return result
 
 

@@ -12,6 +12,7 @@ from .mylogging import logger
 from .utils.utils import get_keyboard, get_info_from_query, end_conversation
 from .send import send_keyboard
 from .text_handler import text_handler
+from .validate_text_file import DEFAULT_NOT_FOUND_TEXT
 
 # entry point for the conversations
 from .admin import PUT_INTRO_VIDEO_BUTTON
@@ -47,17 +48,16 @@ class PutVideoConversation(PutFileConversation):
                 )
             ],
             states={
-                self.INPUT_LAN:[
-                    CallbackQueryHandler(self.language_choice, pattern=fr"^{self.lan_prefix}_")
-                ],
-                self.INPUT_FILE: [
-                    MessageHandler(
-                        filters.VIDEO, self.receive_file
+                self.INPUT_LAN: [
+                    CallbackQueryHandler(
+                        self.language_choice, pattern=rf"^{self.lan_prefix}_"
                     )
                 ],
-
+                self.INPUT_FILE: [MessageHandler(filters.VIDEO, self.receive_file)],
             },
             fallbacks=[CallbackQueryHandler(self.end, pattern=r"^end$")],
+            name=f"put_{self.file_handler.file_key}_conversation",
+            persistent=True,
         )
 
     async def start_conversation(self, update: Update, context: CallbackContext):
@@ -113,6 +113,7 @@ class PutVideoConversation(PutFileConversation):
                 last_message_text_string_index=self.success_message,
                 clean_up=True
             )
+            await self.send_intro_video(update, context)
             return await self.end(update, context)
 
         except Exception as e:
@@ -136,6 +137,51 @@ class PutVideoConversation(PutFileConversation):
         lan = text_handler.get_user_language(context)
         dic = self.get_lan_to_video_id_dict(context)
         return dic.get(lan)
+
+    async def send_intro_video(self, update, context):
+        # If there is no caption, there is no intro video
+        caption, parse_mode = text_handler.get_text_and_parse_mode(
+            context, "intro_video_caption"
+        )
+        if caption == DEFAULT_NOT_FOUND_TEXT:
+            # caption = None
+            return
+
+        vid_id = self.get_video_id(context)
+        if vid_id:
+            try:
+                return await context.bot.send_video(
+                    chat_id=update.effective_chat.id,
+                    video=vid_id,
+                    caption=caption,
+                    parse_mode=parse_mode,
+                )
+            except Exception as e:
+                logger.warning(f"Sending the intro video from file_id: {e}")
+
+        vid_path = self.get_video_path(context)
+        if vid_path:
+            try:
+                with open(vid_path, "rb") as video_file:
+                    message = await context.bot.send_video(
+                        chat_id=update.effective_chat.id,
+                        video=video_file,
+                        caption=caption,
+                        parse_mode=parse_mode,
+                    )
+                # Store the file_id for future use
+                if message and message.video:
+                    id_iterabl = self.get_lan_to_video_id_dict(context)
+                    id_iterabl[text_handler.get_user_language(context)] = (
+                        message.video.file_id
+                    )
+                    context.bot_data[self.video_id_dict_key] = (
+                        id_iterabl
+                    )
+                return message
+            except Exception as e:
+                logger.error(f"Error sending the intro video from file: {e}")
+        return None
 
 
 put_intro_video_file_conv = PutVideoConversation(intro_video_handler, PUT_INTRO_VIDEO_BUTTON)

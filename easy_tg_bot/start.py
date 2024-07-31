@@ -12,9 +12,9 @@ from telegram.ext import (
     CallbackQueryHandler,
     filters,
 )
+from asyncio import sleep
 
 from .text_handler import text_handler
-from .validate_text_file import DEFAULT_NOT_FOUND_TEXT
 from .user import is_user_registered, register_user
 from .send import send_keyboard, send_text
 from .utils.utils import (
@@ -25,8 +25,8 @@ from .utils.utils import (
 
 from .put_intro_video_conv import put_intro_video_file_conv
 
-from .app import application
-from .mylogging import time_log_decorator, logger
+from .decorators import register_conversation_handler
+from .mylogging import logger
 
 # remove the annoying warning
 from warnings import filterwarnings
@@ -38,46 +38,8 @@ filterwarnings(
 
 
 # Constants
-END_CALLBACK = None # Put your start function here
+START_DONE_CALLBACK = None  # Put your start function here
 LANGUAGE_CHOICE, DATA_CONSENT = range(2)
-
-
-async def send_intro_video(update, context):
-    # TODO
-    # If there is no caption, there is no intro video
-    caption, parse_mode = text_handler.get_text_and_parse_mode(context, "intro_video_caption")
-    if caption == DEFAULT_NOT_FOUND_TEXT:
-        # caption = None
-        return
-
-    vid_id = put_intro_video_file_conv.get_video_id(context)
-    if vid_id:
-        try:
-            return await context.bot.send_video(
-                chat_id=update.effective_chat.id, video=vid_id, caption = caption, parse_mode = parse_mode
-            )
-        except Exception as e:
-            logger.warning(f"Error sending the intro video from file_id: {e}")
-
-    vid_path = put_intro_video_file_conv.get_video_path(context)
-    if vid_path:
-        try:
-            with open(vid_path, 'rb') as video_file:
-                message = await context.bot.send_video(
-                    chat_id=update.effective_chat.id,
-                    video=video_file,
-                    caption=caption,
-                    parse_mode=parse_mode
-                )
-            # Store the file_id for future use
-            if message and message.video:
-                id_iterabl = put_intro_video_file_conv.get_lan_to_video_id_dict(context)
-                id_iterabl[text_handler.get_user_language(context)] = message.video.file_id
-                context.bot_data[put_intro_video_file_conv.video_id_dict_key] = id_iterabl
-            return message
-        except Exception as e:
-            logger.error(f"Error sending the intro video from file: {e}")
-    return None
 
 
 async def end(update: Update, context: CallbackContext, intro_vid = False):
@@ -86,12 +48,13 @@ async def end(update: Update, context: CallbackContext, intro_vid = False):
     #     update, context, keyboard, "start_confirm_text", clear_after=False
     # )
     await send_text(update, context, "start_confirm_text", reply_markup=ReplyKeyboardRemove())
-    
+
     if intro_vid:
-        await send_intro_video(update, context)
-    
-    if END_CALLBACK is not None:
-        await END_CALLBACK(update, context)
+        await put_intro_video_file_conv.send_intro_video(update, context)
+        await sleep(2)
+
+    if START_DONE_CALLBACK is not None:
+        await START_DONE_CALLBACK(update, context)
         return ConversationHandler.END
 
 
@@ -133,7 +96,6 @@ async def send_data_consent_keyboard(update: Update, context: CallbackContext):
     return DATA_CONSENT
 
 
-@time_log_decorator
 async def data_consent(update: Update, context: CallbackContext):
     # register user
     register_user(update, context)
@@ -141,10 +103,10 @@ async def data_consent(update: Update, context: CallbackContext):
     info_dict = get_full_info(update)
     for k, v in info_dict.items():
         context.user_data[k] = v
+    logger.info("New user!")
     return await end(update, context, intro_vid=True)
 
 
-@time_log_decorator
 async def not_data_consent(update: Update, context: CallbackContext):
     CONFIRM_BUTTON = text_handler.get_text(context, "start_confirm_button")
     if update.message.text != CONFIRM_BUTTON and not is_user_registered(update, context):
@@ -170,5 +132,8 @@ start_conv_handler = ConversationHandler(
     fallbacks=[
         MessageHandler(filters.ALL, not_data_consent),
     ],
+    name = "start_command_conversation",
+    persistent = True
 )
-application.add_handler(start_conv_handler)
+
+register_conversation_handler(start_conv_handler)

@@ -20,7 +20,7 @@ from .admin import PUT_TEXT_BUTTON
 from .text_handler import text_handler
 
 # connect the handlers
-from .app import application
+from .decorators import register_conversation_handler
 
 # annoying warning
 from warnings import filterwarnings
@@ -43,7 +43,7 @@ class PutFileConversation:
 
         self.put_file_message = f"put_{file_handler.prefix}_file_message"  # text.xlsx
         self.error_message = "error_processing_file"  # text.xlsx
-        
+
         self.start_conversation_get_file_path = self.file_handler.get_path
         self.bot_handler = ConversationHandler(
             entry_points=[
@@ -60,6 +60,8 @@ class PutFileConversation:
                 ],
             },
             fallbacks=[CallbackQueryHandler(self.end, pattern=r"^end$")],
+            name=f"put_{self.file_handler.file_key}_conversation",
+            persistent=True
         )
 
     async def end(self, update: Update, context: CallbackContext):
@@ -98,7 +100,7 @@ class PutFileConversation:
 
         try:
             file_path = await self.file_handler.download_file(update)
-            result = self.file_handler.validate_file(None, file_path)
+            result = self.file_handler.validate_file(file_path)
             code, message_text_id = (
                 result[0],
                 result[1],
@@ -126,7 +128,7 @@ class PutFileConversation:
             )
 
     def register_handler(self):
-        application.add_handler(self.bot_handler)
+        register_conversation_handler(self.bot_handler)
 
 
 # My handlers

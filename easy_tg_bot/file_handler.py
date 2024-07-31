@@ -17,8 +17,8 @@ class FileHandler:
         self.file_key = f"{prefix}_file"
         self.key_to_iter = f"{prefix}_iterable"
         # To call inside the class; to call outside, put extra arg in
-        self.read_file = lambda self, *args: read_file_function(*args)  # into something iterable
-        self.validate_file = lambda self, *args: validate_function(*args)
+        self.read_file = read_file_function # into something iterable
+        self.validate_file = validate_function
 
     # Basics
     async def download_file(self, update: Update):
@@ -76,7 +76,7 @@ class FileHandler:
     def put_file_iterable(self, context: CallbackContext):
         """use only after refreshing path"""
         path = self.get_path(context)
-        context.bot_data[self.key_to_iter] = self.read_file(None, path)
+        context.bot_data[self.key_to_iter] = self.read_file(path)
 
     def get_file_iterable(self, context: CallbackContext):
         if not context.bot_data.get(self.key_to_iter):
