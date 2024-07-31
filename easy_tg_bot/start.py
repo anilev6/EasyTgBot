@@ -38,15 +38,12 @@ filterwarnings(
 
 
 # Constants
-START_DONE_CALLBACK = None  # Put your start function here
+START_DONE_CALLBACK = None  # Put your start function here; preferably it involves send_keyboard
 LANGUAGE_CHOICE, DATA_CONSENT = range(2)
 
 
 async def end(update: Update, context: CallbackContext, intro_vid = False):
-    # keyboard = get_initial_keyboard(update, context)
-    # await send_keyboard(
-    #     update, context, keyboard, "start_confirm_text", clear_after=False
-    # )
+    # remove keyboard
     await send_text(update, context, "start_confirm_text", reply_markup=ReplyKeyboardRemove())
 
     if intro_vid:
@@ -54,7 +51,7 @@ async def end(update: Update, context: CallbackContext, intro_vid = False):
         await sleep(2)
 
     if START_DONE_CALLBACK is not None:
-        await START_DONE_CALLBACK(update, context)
+        await START_DONE_CALLBACK(update, context) # <- has to use 
         return ConversationHandler.END
 
 
@@ -63,7 +60,7 @@ async def start(update: Update, context: CallbackContext):
         return ConversationHandler.END
 
     # refresh keyboards
-    await send_text(update, context, "welcome_text", reply_markup=ReplyKeyboardRemove())  
+    await send_text(update, context, "welcome_text", reply_markup=ReplyKeyboardRemove()) # just in case
     return await send_lan_choice_keyboard(update, context)
 
 

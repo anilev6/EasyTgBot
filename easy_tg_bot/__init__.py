@@ -22,4 +22,5 @@ from .send import send_video_from_file_id
 # - Web-hooks
 # - Replace 'nan' with None
 # - in text.xlsx divide texts into sheets by the roles, where user is the most general
-# - Small Bug fix: Error in not_data_consent
+# - Small Bug fix: Error in not_data_consent ?
+# - Validate text file more

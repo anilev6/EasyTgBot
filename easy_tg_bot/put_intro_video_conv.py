@@ -68,7 +68,12 @@ class PutVideoConversation(PutFileConversation):
         await query.answer()
 
         languages = text_handler.get_languages(context)
-        keyboard = get_keyboard(context, options=languages, prefix=self.lan_prefix)
+        keyboard = get_keyboard(
+            context,
+            options=languages,
+            prefix=self.lan_prefix,
+            back_button_callback="end",
+        )
         await send_keyboard(update, context, keyboard, "intro_video_language_choice") # text.xlsx
         return self.INPUT_LAN
 

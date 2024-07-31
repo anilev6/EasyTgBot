@@ -8,9 +8,12 @@ PARSE_MODE_COLUMN = "PARSE MODE"
 INDEX_COLUMN = "TEXT INDEX"
 VALIDATION_MESSAGE = "validate_text_{}"  # text.xlsx
 DEFAULT_NOT_FOUND_TEXT = "404"
+IGNORE_ABSENSE_TEXT_STRINGS = ["intro_video_caption"]
+
+NECCESSARY_COLUMNS = [PARSE_MODE_COLUMN, INDEX_COLUMN]
+NECCESSARY_SHEETS = []
 
 
-# Function to make sure random spaces in the file are ignored
 def clear_table_element(element):
     element = element.strip() if isinstance(element, str) else element
     if not element:
@@ -18,8 +21,27 @@ def clear_table_element(element):
     return element
 
 
+def validate_dataframes(file_path, sheets, columns):
+    df_sheets = pd.read_excel(file_path, sheet_name=None, dtype=str)
+
+    if not all(s in df_sheets for s in sheets):
+        msg = "Sheets in the file are missing!"
+        raise ValueError(msg)
+
+    if not all(column in v.columns for column in columns for v in df_sheets.values()):
+        msg = "Wrong columns in the file!"
+        raise ValueError(msg)
+
+
 # Get rid of spaces
 def read_file(file_path) -> dict:
+    # Initial validation
+    validate_dataframes(
+        file_path,
+        NECCESSARY_SHEETS,
+        NECCESSARY_COLUMNS,
+    )
+
     df_sheets = pd.read_excel(file_path, sheet_name=None, dtype=str, index_col=0)
 
     # Clear strings
@@ -67,7 +89,8 @@ def get_text_from_dict(language, text_dictionary, text_string_index):
         main_bot_language = get_main_language_from_dict(text_dictionary)
         result = text_dictionary.get(main_bot_language,{}).get(text_string_index)
         if result is None:
-            logger.error(f"Key Error in file_dict: {text_string_index}")
+            if text_string_index not in IGNORE_ABSENSE_TEXT_STRINGS:
+                logger.error(f"Key Error in file_dict: {text_string_index}")
             return DEFAULT_NOT_FOUND_TEXT
     return result
 
