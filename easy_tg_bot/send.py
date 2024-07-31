@@ -117,3 +117,49 @@ async def send_keyboard(
         disable_web_page_preview=True,
         **kwargs,
     )
+
+
+async def send_video_from_file_id_raw(
+    update, context, keyboard, file_id, caption, parse_mode, user_id=None, **kwargs
+):
+    if user_id is None:
+        user_id = update.effective_chat.id
+
+    sent_message = await context.bot.send_video(
+        chat_id=user_id,
+        reply_markup=keyboard,
+        video=file_id,
+        caption=caption,
+        parse_mode=parse_mode,
+        **kwargs
+    )
+    return sent_message.message_id
+
+
+async def send_video_from_file_id(
+    update,
+    context,
+    keyboard,
+    file_id,
+    caption=None,
+    parse_mode=None,
+    user_id=None,
+    clear_after=True,
+    clear_before=True,
+    **kwargs,
+):
+    """Sends video as a keyboard"""
+    # TODO the following structure as a decorator
+
+    if clear_before:
+        # Mute a previous active window so only one active window can be in a chat
+        await mute_last_active_keyboard(update, context, user_id)
+
+    # Send
+    sent_message_id = await send_video_from_file_id_raw(
+        update, context, keyboard, file_id, caption, parse_mode, **kwargs
+    )
+
+    if clear_after:
+        # Store the message ID of the new start menu message
+        await register_last_active_keyboard(context, sent_message_id, user_id)
