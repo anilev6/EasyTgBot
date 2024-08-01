@@ -11,14 +11,15 @@ from ..mylogging import logger
 
 
 # Info utils
+ESSENTIAL_INFO_PREFIX = "tg"
 def get_user_open_tg_info(user) -> dict:
     # Gather user info from telegram user object
     user_info = {
         # "uuid": uuid1(),  # additional anonimization
         "added_on": str(datetime.now()),
-        "tg_username": f"@{user.username}",
-        "tg_first_name": user.first_name,
-        "tg_last_name": user.last_name,
+        f"{ESSENTIAL_INFO_PREFIX}_username": f"@{user.username}",
+        f"{ESSENTIAL_INFO_PREFIX}_first_name": user.first_name,
+        f"{ESSENTIAL_INFO_PREFIX}_last_name": user.last_name,
     }
     return user_info
 
@@ -26,8 +27,8 @@ def get_user_open_tg_info(user) -> dict:
 def get_user_hidden_tg_info(contact) -> dict:
     # Gather user info from telegram message.contact object when shared
     user_info = {
-        "tg_phone_number": contact.phone_number,
-        "tg_vcard": contact.vcard,
+        f"{ESSENTIAL_INFO_PREFIX}_phone_number": contact.phone_number,
+        "vcard": contact.vcard,
     }
     return user_info
 
@@ -40,6 +41,18 @@ def get_full_info(update):
         contact_info = get_user_hidden_tg_info(contact)
         user_info.update(contact_info)
     return {k: v for k, v in user_info.items() if v is not None}
+
+
+def put_user_data(update, context):
+    info_dict = get_full_info(update)
+    for k, v in info_dict.items():
+        context.user_data[k] = v
+
+
+def get_user_data_essential(context, user_id):
+    user_data = context.application.user_data.get(user_id, {})
+    info_lines = [f"{k}: {v}" for k, v in user_data.items() if k.startswith(ESSENTIAL_INFO_PREFIX)]
+    return "\n".join(info_lines)
 
 
 # Keyboard utils
