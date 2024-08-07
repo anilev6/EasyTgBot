@@ -4,7 +4,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 # from uuid import uuid1
 from datetime import datetime
 
-
+from .context_logic import get_user_data, clear_cache
 from ..text_handler import text_handler
 from ..send import mute_last_active_keyboard, send_text
 from ..mylogging import logger
@@ -43,14 +43,14 @@ def get_full_info(update):
     return {k: v for k, v in user_info.items() if v is not None}
 
 
-def put_user_data(update, context):
+def put_info_to_user_data(update, context):
     info_dict = get_full_info(update)
-    for k, v in info_dict.items():
-        context.user_data[k] = v
+    user_data = get_user_data(context)
+    user_data.update(info_dict)
 
 
 def get_user_data_essential(context, user_id):
-    user_data = context.application.user_data.get(user_id, {})
+    user_data = get_user_data(context, user_id)
     info_lines = [f"{k}: {v}" for k, v in user_data.items() if k.startswith(ESSENTIAL_INFO_PREFIX)]
     return "\n".join(info_lines)
 
@@ -109,19 +109,6 @@ async def get_info_from_query(update, prefix):
 
 
 # Conversation utils
-def clear_cache(context: CallbackContext):
-    """
-    Cached items to clean always have prefix "current" and are stored in chat_data
-    """
-    try:
-        for k in list(context.chat_data.keys()):
-            if k.startswith("current"):
-                context.chat_data.pop(k)
-
-    except Exception as e:
-        logger.warning(f"Error in clear_cache: {str(e)}")
-
-
 async def end_conversation(
     update: Update,
     context: CallbackContext,

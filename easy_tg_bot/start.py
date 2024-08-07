@@ -20,7 +20,7 @@ from .send import send_keyboard, send_text
 from .utils.utils import (
     get_info_from_query,
     get_keyboard,
-    put_user_data,
+    put_info_to_user_data,
 )
 
 from .put_intro_video_conv import put_intro_video_file_conv
@@ -97,7 +97,7 @@ async def data_consent(update: Update, context: CallbackContext):
     # register user
     register_user(update, context)
     # collect data
-    put_user_data(update, context)
+    put_info_to_user_data(update, context)
     logger.info("New user!")
     return await end(update, context, intro_vid=True)
 
@@ -127,7 +127,7 @@ start_conv_handler = ConversationHandler(
     fallbacks=[
         MessageHandler(filters.ALL, not_data_consent),
     ],
-    name = "start_command_conversation",
+    name = "start_command",
     persistent = True
 )
 

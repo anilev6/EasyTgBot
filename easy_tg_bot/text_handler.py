@@ -2,6 +2,7 @@ from telegram.ext import (
     CallbackContext,
 )
 
+from .utils.context_logic import put_user_data, get_user_data
 from .file_handler import FileHandler
 from .validate_text_file import (
     get_text_dictionary,
@@ -30,14 +31,10 @@ class TextFileHandler(FileHandler):
 
     # User Language logic
     def assign_language_to_user(self, context, lan):
-        context.user_data["lan"] = lan
+        put_user_data(context, "lan", lan)
 
     def get_user_language(self, context, user_id=None):
-        if user_id is None:
-            user_data = context.user_data
-        else:
-            user_data = context.application.user_data.get(int(user_id), {})
-
+        user_data = get_user_data(context, user_id)
         return user_data.get("lan", self.get_main_language(context))
 
     # Get Text

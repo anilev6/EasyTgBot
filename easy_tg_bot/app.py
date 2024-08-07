@@ -1,5 +1,5 @@
 import contextlib
-from telegram.ext import ApplicationBuilder, PicklePersistence
+from telegram.ext import Application, ApplicationBuilder, PicklePersistence
 
 from .settings import TG_BOT_TOKEN, BOT_NAME
 from .mylogging import time_log_decorator
@@ -12,8 +12,38 @@ from .decorators import add_handlers
 persistence = PicklePersistence(filepath=f"{BOT_NAME}Persistence", on_flush=True)
 
 
+class MyApplication(Application):
+    # Disagreeing with the user/chat_data read-only policy
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.user_data = self._user_data
+        self.chat_data = self._chat_data
+
+    async def stop(self):
+        # TODO urgent shutdown
+        # Ensure all user data and chat data are saved
+        if self.persistence:
+            for user_id, data in self.user_data.items():
+                await self.persistence.update_user_data(user_id, data)
+            for chat_id, data in self.chat_data.items():
+                await self.persistence.update_chat_data(chat_id, data)
+
+        # Call the original stop method
+        await super().stop()
+
+
 # --------------------------------------------TELEGRAM APP---------------------------------
-application = ApplicationBuilder().token(TG_BOT_TOKEN).persistence(persistence).build()
+application = (
+    ApplicationBuilder()
+    .application_class(MyApplication)
+    .token(TG_BOT_TOKEN)
+    .persistence(persistence)
+    .build()
+)
 
 
 # --------------------------------------------TELEGRAM APP---------------------------------

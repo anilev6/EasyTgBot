@@ -1,33 +1,23 @@
 from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
+from .utils.context_logic import get_chat_data, put_chat_data
 from .text_handler import text_handler
 from .mylogging import logger
 
 
 # Caching logic
 async def register_last_active_keyboard(context: CallbackContext, message_id, user_id=None):
-    if user_id is None:
-        chat_data = context.chat_data
-
-    else:
-        chat_data = context.application.chat_data.get(int(user_id), {})
-
-    chat_data["last_keyboard_message_id"] = message_id
+    put_chat_data(context, "last_keyboard_message_id", message_id, user_id)
 
 
 async def mute_last_active_keyboard(update: Update, context: CallbackContext, user_id=None):
-    if user_id is None:
-        user_id = update.effective_chat.id
-        chat_data = context.chat_data
-    else:
-        chat_data = context.application.chat_data.get(int(user_id), {})
-
+    chat_data = get_chat_data(context, user_id)
     message_id = chat_data.get("last_keyboard_message_id")
     if message_id:
         try:
             await context.bot.delete_message(
-                chat_id=user_id,
+                chat_id=user_id or update.effective_chat.id,
                 message_id=message_id,
             )
             chat_data.pop("last_keyboard_message_id")
@@ -38,10 +28,7 @@ async def mute_last_active_keyboard(update: Update, context: CallbackContext, us
 
 # Send raw
 async def send_text_raw(update: Update, context: CallbackContext, text: str, user_id = None, **kwargs):
-    if user_id is None:
-        user_id = update.effective_chat.id
-    
-    sent_message = await context.bot.send_message(chat_id=user_id, text=text, **kwargs)
+    sent_message = await context.bot.send_message(chat_id=user_id or update.effective_chat.id, text=text, **kwargs)
     return sent_message.message_id
 
 

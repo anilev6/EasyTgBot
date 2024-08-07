@@ -9,6 +9,7 @@ from telegram.ext import (
 
 from .put_file_conv import PutFileConversation
 from .mylogging import logger
+from .utils.context_logic import put_chat_data, get_chat_data
 from .utils.utils import get_keyboard, get_info_from_query, end_conversation
 from .send import send_keyboard
 from .text_handler import text_handler
@@ -56,7 +57,7 @@ class PutVideoConversation(PutFileConversation):
                 self.INPUT_FILE: [MessageHandler(filters.VIDEO, self.receive_file)],
             },
             fallbacks=[CallbackQueryHandler(self.end, pattern=r"^end$")],
-            name=f"put_{self.file_handler.file_key}_conversation",
+            name=f"put_{self.file_handler.file_key}",
             persistent=True,
         )
 
@@ -78,7 +79,8 @@ class PutVideoConversation(PutFileConversation):
         return self.INPUT_LAN
 
     async def language_choice(self, update: Update, context: CallbackContext):
-        context.chat_data[self.cached_lan_key] = await get_info_from_query(update, self.lan_prefix)
+        info = await get_info_from_query(update, self.lan_prefix)
+        put_chat_data(context, self.cached_lan_key, info)
         keyboard = get_keyboard(context, back_button_callback="end") 
         await send_keyboard(update, context, keyboard, self.put_file_message)
         return self.INPUT_FILE
@@ -88,7 +90,8 @@ class PutVideoConversation(PutFileConversation):
             return
 
         # This goes after the language choice
-        current_lan = context.chat_data.get(self.cached_lan_key)
+        chat_data = get_chat_data(context)
+        current_lan = chat_data.get(self.cached_lan_key)
         if not current_lan:
             logger.error("Error regisreting the video: language missing")
             await end_conversation(
