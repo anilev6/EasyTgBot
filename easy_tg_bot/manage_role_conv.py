@@ -10,7 +10,7 @@ from telegram.ext import (
 from .roles import DEFAULT_ADMIN_ROLES, check_role, add_role, is_bot_closed, close_bot_for_users, open_bot_for_users
 from .admin import admin, ADMIN_MENU
 from .text_handler import text_handler
-from .utils.utils import get_keyboard
+from .utils.utils import get_keyboard, get_info_from_query
 from .send import send_keyboard, send_text
 from .mylogging import logger
 from .decorators import register_conversation_handler, button_callback
@@ -44,20 +44,29 @@ class ManageRoleConverstion:
     )
 
     async def cancel(self, update: Update, context: CallbackContext):
+        # Answer callback
+        if update:
+            query = update.callback_query
+            if query:
+                await query.answer()
+
+        # Check role
         if not self.restrict_function(update, context):
             return ConversationHandler.END
 
         await admin_manage_users_button(update, context)
         return ConversationHandler.END
 
-    async def start_conversation(self, update: Update, context: CallbackContext) -> int:
-        if not self.restrict_function(update, context):
-            return ConversationHandler.END
-
+    async def start_conversation(self, update: Update, context: CallbackContext):
+        # Answer callback
         if update:
             query = update.callback_query
             if query:
                 await query.answer()
+
+        # Check role
+        if not self.restrict_function(update, context):
+            return ConversationHandler.END
 
         keyboard = get_keyboard(context, back_button_callback="cancel")
         await send_keyboard(update, context, keyboard, f"{self.entry_point}_text")
@@ -157,6 +166,8 @@ async def admin_manage_users_button(update, context):
         for option_name, option in options.items()
     ]
 
+    # TODO forget users
+
     # back
     buttons += [
         [
@@ -177,26 +188,6 @@ async def admin_cancel(update, context):
 
 
 @button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
-async def get_users_by_role_menu(update, context):
-    # menu
-    buttons = []
-
-    # get TODO
-    
-    # back
-    buttons += [
-        [
-            InlineKeyboardButton(
-                text_handler.get_text(context, "back_button"),
-                callback_data="admin_manage_users_button",
-            )
-        ]
-    ]
-    keyboard = InlineKeyboardMarkup(buttons)
-    return await send_keyboard(update, context, keyboard, "admin_manage_users_header")
-
-
-@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
 async def open_close_bot(update, context):
     if is_bot_closed(context):
         open_bot_for_users(context)
@@ -208,3 +199,52 @@ async def open_close_bot(update, context):
         logger.info("Bot has been closed")
 
     return await admin_manage_users_button(update, context)
+
+
+@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
+async def get_users_by_role_menu(update, context):
+    prefix = "admin_get_users"
+    options = ("admin", "user", "banned")
+    buttons = []
+
+    # List options
+    buttons += [
+        [
+            InlineKeyboardButton(
+                text_handler.get_text(context, f"{prefix}_{option}"),
+                callback_data=f"{prefix}_{option}",
+            )
+        ]
+        for option in options
+    ]
+
+    # Go back
+    buttons += [
+        [
+            InlineKeyboardButton(
+                text_handler.get_text(
+                    context,
+                    text_string_index="back_button",
+                ),
+                callback_data="admin_manage_users_button",
+            )
+        ]
+    ]
+    return await send_keyboard(
+        update, context, InlineKeyboardMarkup(buttons), "admin_get_users_header"
+    )
+
+
+@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
+async def admin_get_users(update, context):
+    choice = await get_info_from_query(update, "admin_get_users")
+    # TODO send with pagination
+    print(choice)
+
+    keyboard = get_keyboard(
+        context,
+        # options,
+        # prefix=prefix,
+        back_button_callback="get_users_by_role_menu",
+    )
+    return await send_keyboard(update, context, keyboard, f"admin_get_users_header_{choice}")

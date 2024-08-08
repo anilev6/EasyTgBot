@@ -33,8 +33,15 @@ def button_callback(prefix=None, allowed_roles = DEFAULT_ALLOWED_ROLES):
 
         @wraps(func)
         async def wrapper(update, context, *args, **kwargs):
+            # Answer query
+            if update:
+                query = update.callback_query
+                if query:
+                    await query.answer()
+
             if not check_role(context, allowed_roles):
                 return ConversationHandler.END
+
             return await func(update, context, *args, **kwargs)
 
         CALLBACK_HANDLERS[callback_name] = wrapper

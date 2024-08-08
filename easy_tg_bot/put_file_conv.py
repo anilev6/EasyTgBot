@@ -65,6 +65,13 @@ class PutFileConversation:
         )
 
     async def end(self, update: Update, context: CallbackContext):
+        # Answer callback
+        if update:
+            query = update.callback_query
+            if query:
+                await query.answer()
+
+        # Check role
         if not self.restrict_function(update, context):
             return ConversationHandler.END  # TODO decorators
 
@@ -72,11 +79,15 @@ class PutFileConversation:
         return ConversationHandler.END
 
     async def start_conversation(self, update: Update, context: CallbackContext):
+        # Answer callback
+        if update:
+            query = update.callback_query
+            if query:
+                await query.answer()
+
+        # Check role
         if not self.restrict_function(update, context):
             return ConversationHandler.END
-
-        query = update.callback_query
-        await query.answer()
 
         keyboard = get_keyboard(context, back_button_callback="end") 
         await send_keyboard(update, context, keyboard, self.put_file_message)

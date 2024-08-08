@@ -106,9 +106,6 @@ async def get_info_from_query(update, prefix):
     if update:
         query = update.callback_query
         if query:
-            # Answer
-            await query.answer()
-
             # Get data
             query_data = query.data
             return query_data.replace(f"{prefix}_", "")

@@ -64,6 +64,12 @@ async def send_lan_choice_keyboard(update: Update, context: CallbackContext):
 
 @role_required()
 async def language_choice(update: Update, context: CallbackContext):
+    # Answer callback
+    if update:
+        query = update.callback_query
+        if query:
+            await query.answer()
+
     lan = await get_info_from_query(update, "lan")
     text_handler.assign_language_to_user(context, lan)
     if is_info_in_user_data(update, context) or check_role(context, DEFAULT_ADMIN_ROLES):

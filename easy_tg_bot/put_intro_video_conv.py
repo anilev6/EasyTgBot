@@ -63,11 +63,15 @@ class PutVideoConversation(PutFileConversation):
         )
 
     async def start_conversation(self, update: Update, context: CallbackContext):
+        # Answer callback
+        if update:
+            query = update.callback_query
+            if query:
+                await query.answer()
+
+        # Check role
         if not self.restrict_function(update, context):
             return ConversationHandler.END  # TODO decorators
-
-        query = update.callback_query
-        await query.answer()
 
         languages = text_handler.get_languages(context)
         keyboard = get_keyboard(
@@ -80,6 +84,13 @@ class PutVideoConversation(PutFileConversation):
         return self.INPUT_LAN
 
     async def language_choice(self, update: Update, context: CallbackContext):
+        # Answer callback
+        if update:
+            query = update.callback_query
+            if query:
+                await query.answer()
+
+        # Check role
         if not self.restrict_function(update, context):
             return ConversationHandler.END 
 

@@ -26,10 +26,14 @@ from .roles import role_required, check_role, DEFAULT_ADMIN_ROLES, DEFAULT_ALLOW
 from .manage_role_conv import ManageRoleConverstion
 
 # TODO
-# - mailing service
+# - Send with pagination
+# - Present users
+# - Mailing service
 # - Dockerfile
 # - Web-hooks
 # - Replace 'nan' with None
 # - Format text.xlsx
 # - Small Bug fix: Error in not_data_consent ?
 # - Validate text file more
+# - Error handling
+# - Log errors and warnings to superadmin
