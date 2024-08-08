@@ -14,13 +14,14 @@ from telegram.ext import (
 )
 from asyncio import sleep
 
+from .roles import start_permission, role_required
 from .text_handler import text_handler
-from .user import is_user_registered, register_user
 from .send import send_keyboard, send_text
 from .utils.utils import (
     get_info_from_query,
     get_keyboard,
     put_info_to_user_data,
+    is_info_in_user_data
 )
 
 from .put_intro_video_conv import put_intro_video_file_conv
@@ -42,28 +43,18 @@ START_DONE_CALLBACK = None  # Put your start function here; preferably it involv
 LANGUAGE_CHOICE, DATA_CONSENT = range(2)
 
 
-async def end(update: Update, context: CallbackContext, intro_vid = False):
-    # remove keyboard
-    await send_text(update, context, "start_confirm_text", reply_markup=ReplyKeyboardRemove())
-
-    if intro_vid:
-        await put_intro_video_file_conv.send_intro_video(update, context)
-        await sleep(2)
-
-    if START_DONE_CALLBACK is not None:
-        await START_DONE_CALLBACK(update, context) # <- has to use 
-        return ConversationHandler.END
-
-
 async def start(update: Update, context: CallbackContext):
-    if update.effective_user.is_bot:  # TODO allowed users
+    if not start_permission(update, context):  # TODO allowed users
         return ConversationHandler.END
 
     # refresh keyboards
-    await send_text(update, context, "welcome_text", reply_markup=ReplyKeyboardRemove()) # just in case
+    await send_text(
+        update, context, "welcome_text", reply_markup=ReplyKeyboardRemove()
+    )  # just in case
     return await send_lan_choice_keyboard(update, context)
 
 
+@role_required()
 async def send_lan_choice_keyboard(update: Update, context: CallbackContext):
     languages = text_handler.get_languages(context)
     keyboard = get_keyboard(context, options=languages, prefix="lan")
@@ -71,14 +62,16 @@ async def send_lan_choice_keyboard(update: Update, context: CallbackContext):
     return LANGUAGE_CHOICE
 
 
+@role_required()
 async def language_choice(update: Update, context: CallbackContext):
     lan = await get_info_from_query(update, "lan")
     text_handler.assign_language_to_user(context, lan)
-    if is_user_registered(update, context):
+    if is_info_in_user_data(update, context):
         return await end(update, context)
     return await send_data_consent_keyboard(update, context)
 
 
+@role_required()
 async def send_data_consent_keyboard(update: Update, context: CallbackContext):
     CONFIRM_BUTTON = text_handler.get_text(context, "start_confirm_button")
     EXIT_BUTTON = text_handler.get_text(context, "back_button")
@@ -93,23 +86,39 @@ async def send_data_consent_keyboard(update: Update, context: CallbackContext):
     return DATA_CONSENT
 
 
+@role_required()
 async def data_consent(update: Update, context: CallbackContext):
-    # register user
-    register_user(update, context)
-    # collect data
     put_info_to_user_data(update, context)
     logger.info("New user!")
     return await end(update, context, intro_vid=True)
 
 
+@role_required()
 async def not_data_consent(update: Update, context: CallbackContext):
     CONFIRM_BUTTON = text_handler.get_text(context, "start_confirm_button")
-    if update.message.text != CONFIRM_BUTTON and not is_user_registered(update, context):
+    if update.message.text != CONFIRM_BUTTON:
         await send_text(
             update, context, "not_confirm_text", reply_markup=ReplyKeyboardRemove()
         )
     else:
         logger.error("Error in not_data_consent")
+    return ConversationHandler.END
+
+
+@role_required()
+async def end(update: Update, context: CallbackContext, intro_vid=False):
+    # remove keyboard
+    await send_text(
+        update, context, "start_confirm_text", reply_markup=ReplyKeyboardRemove()
+    )
+
+    if intro_vid:
+        await put_intro_video_file_conv.send_intro_video(update, context)
+        await sleep(2)
+
+    if START_DONE_CALLBACK is not None:
+        await START_DONE_CALLBACK(update, context)  # <- has to use
+    
     return ConversationHandler.END
 
 

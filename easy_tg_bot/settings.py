@@ -19,5 +19,9 @@ TG_BOT_TOKEN = get_secret_by_name("TG_BOT_TOKEN")
 # Tg IDs
 MY_TG_ID = str(get_secret_by_name("MY_TG_ID"))
 
-SUPERADMIN_GROUP = [MY_TG_ID]
-ADMIN_GROUP = []
+DEFAULT_ROLES = {
+    MY_TG_ID: "superadmin"
+}
+
+def get_default_role(user_id):
+    return DEFAULT_ROLES.get(str(user_id), "user")

@@ -1,6 +1,8 @@
+from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler
 from functools import wraps
-from telegram.ext import CommandHandler, CallbackQueryHandler
 from uuid import uuid1
+
+from .roles import check_role, DEFAULT_ALLOWED_ROLES
 
 
 COMMAND_HANDLERS = {}
@@ -9,26 +11,31 @@ CONVERSATION_HANDLERS = {}
 
 
 # Decorators
-def command(name=None):
+def command(name=None, allowed_roles = DEFAULT_ALLOWED_ROLES):
     def decorator(func):
         command_name = name or func.__name__
 
         @wraps(func)
-        async def wrapper(update, context):
-            return await func(update, context)
+        async def wrapper(update, context, *args, **kwargs):
+            if not check_role(context, allowed_roles):
+                return ConversationHandler.END
+            return await func(update, context, *args, **kwargs)
 
         COMMAND_HANDLERS[command_name] = wrapper
         return wrapper
     return decorator
 
-def button_callback(prefix=None):
+
+def button_callback(prefix=None, allowed_roles = DEFAULT_ALLOWED_ROLES):
     def decorator(func):
         callback_name = prefix or func.__name__
         callback_name = rf"^{callback_name}"
 
         @wraps(func)
-        async def wrapper(update, context):
-            return await func(update, context)
+        async def wrapper(update, context, *args, **kwargs):
+            if not check_role(context, allowed_roles):
+                return ConversationHandler.END
+            return await func(update, context, *args, **kwargs)
 
         CALLBACK_HANDLERS[callback_name] = wrapper
         return wrapper

@@ -24,7 +24,7 @@ class MyApplication(Application):
         self.chat_data = self._chat_data
 
     async def stop(self):
-        # TODO urgent shutdown
+        # TODO handle urgent shutdown
         # Ensure all user data and chat data are saved
         if self.persistence:
             for user_id, data in self.user_data.items():

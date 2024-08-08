@@ -31,7 +31,7 @@ def clear_cache(context):
     """
     try:
         chat_data = get_chat_data(context)
-        for k in chat_data.keys():
+        for k in list(chat_data.keys()):
             if k.startswith("current"):
                 chat_data.pop(k)
 

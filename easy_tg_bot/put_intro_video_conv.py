@@ -15,8 +15,9 @@ from .send import send_keyboard
 from .text_handler import text_handler
 from .validate_text_file import DEFAULT_NOT_FOUND_TEXT
 
+from .roles import check_role, DEFAULT_ALLOWED_ROLES
 # entry point for the conversations
-from .admin import PUT_INTRO_VIDEO_BUTTON
+from .admin import ADD_INTRO_VID_BUTTON
 from .video_handler import intro_video_handler
 
 # annoying warning
@@ -79,6 +80,9 @@ class PutVideoConversation(PutFileConversation):
         return self.INPUT_LAN
 
     async def language_choice(self, update: Update, context: CallbackContext):
+        if not self.restrict_function(update, context):
+            return ConversationHandler.END 
+
         info = await get_info_from_query(update, self.lan_prefix)
         put_chat_data(context, self.cached_lan_key, info)
         keyboard = get_keyboard(context, back_button_callback="end") 
@@ -87,7 +91,7 @@ class PutVideoConversation(PutFileConversation):
 
     async def receive_file(self, update: Update, context: CallbackContext):
         if not self.restrict_function(update, context):
-            return
+            return ConversationHandler.END  
 
         # This goes after the language choice
         chat_data = get_chat_data(context)
@@ -122,6 +126,7 @@ class PutVideoConversation(PutFileConversation):
                 clean_up=True
             )
             await self.send_intro_video(update, context)
+            logger.info("Intro video added")
             return await self.end(update, context)
 
         except Exception as e:
@@ -147,6 +152,9 @@ class PutVideoConversation(PutFileConversation):
         return dic.get(lan)
 
     async def send_intro_video(self, update, context):
+        if not check_role(context, DEFAULT_ALLOWED_ROLES):
+            return ConversationHandler.END 
+
         # If there is no caption, there is no intro video
         caption, parse_mode = text_handler.get_text_and_parse_mode(
             context, "intro_video_caption"
@@ -192,5 +200,5 @@ class PutVideoConversation(PutFileConversation):
         return None
 
 
-put_intro_video_file_conv = PutVideoConversation(intro_video_handler, PUT_INTRO_VIDEO_BUTTON)
+put_intro_video_file_conv = PutVideoConversation(intro_video_handler, ADD_INTRO_VID_BUTTON)
 put_intro_video_file_conv.register_handler()

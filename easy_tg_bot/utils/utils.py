@@ -49,6 +49,13 @@ def put_info_to_user_data(update, context):
     user_data.update(info_dict)
 
 
+def is_info_in_user_data(update, context):
+    user_data = get_user_data(context)
+    for k in user_data:
+        if k.startswith(ESSENTIAL_INFO_PREFIX):
+            return True
+
+
 def get_user_data_essential(context, user_id):
     user_data = get_user_data(context, user_id)
     info_lines = [f"{k}: {v}" for k, v in user_data.items() if k.startswith(ESSENTIAL_INFO_PREFIX)]
