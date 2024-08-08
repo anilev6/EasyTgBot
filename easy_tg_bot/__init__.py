@@ -28,12 +28,21 @@ from .manage_role_conv import ManageRoleConverstion
 # TODO
 # - Send with pagination
 # - Present users
-# - Mailing service
-# - Dockerfile
+
+# - Test adding a language (only to a user for example)
+
+# - Dockerfile, .dockerignore
+# - update the version without stopping (/superadmin command?)
 # - Web-hooks
-# - Replace 'nan' with None
-# - Format text.xlsx
-# - Small Bug fix: Error in not_data_consent ?
-# - Validate text file more
+# - Deploy ?
+# - update the deployed version without stopping (/superadmin command?)
+
+# - Mailing service
+# - Forget user /forget_me; Delete user;
+# - /superadmin /get_bd
 # - Error handling
 # - Log errors and warnings to superadmin
+# - Superadmin commands
+# - Replace 'nan' with None
+# - Small Bug fix: Error in not_data_consent ?
+# - Validate text file more
