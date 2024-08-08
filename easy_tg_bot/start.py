@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from asyncio import sleep
 
-from .roles import start_permission, role_required
+from .roles import start_permission, role_required, check_role, DEFAULT_ADMIN_ROLES
 from .text_handler import text_handler
 from .send import send_keyboard, send_text
 from .utils.utils import (
@@ -66,7 +66,7 @@ async def send_lan_choice_keyboard(update: Update, context: CallbackContext):
 async def language_choice(update: Update, context: CallbackContext):
     lan = await get_info_from_query(update, "lan")
     text_handler.assign_language_to_user(context, lan)
-    if is_info_in_user_data(update, context):
+    if is_info_in_user_data(update, context) or check_role(context, DEFAULT_ADMIN_ROLES):
         return await end(update, context)
     return await send_data_consent_keyboard(update, context)
 

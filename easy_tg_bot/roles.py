@@ -1,9 +1,9 @@
 from functools import wraps
 from telegram.ext import ConversationHandler
 
-from easy_tg_bot.utils.context_logic import put_user_data, get_user_data
-from easy_tg_bot.utils.utils import get_user_data_essential
-from easy_tg_bot.settings import get_default_role
+from .utils.context_logic import put_user_data, get_user_data
+from .utils.utils import get_user_data_essential
+from .settings import get_default_role
 
 
 DEFAULT_ALLOWED_ROLES = ("superadmin", "admin", "user")
@@ -13,6 +13,7 @@ DEFAULT_ADMIN_ROLES = ("superadmin", "admin")
 # Basic
 def add_role(context, role, user_id = None):
     put_user_data(context, "role", role, user_id)
+    return get_role(context, user_id)
 
 def get_role(context, user_id = None):
     user_data = get_user_data(context, user_id)
