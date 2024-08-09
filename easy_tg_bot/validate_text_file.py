@@ -32,6 +32,11 @@ def validate_dataframes(file_path, sheets, columns):
         msg = "Wrong columns in the file!"
         raise ValueError(msg)
 
+    column_names = [df.columns.tolist() for df in df_sheets.values()]
+    if not all(columns == column_names[0] for columns in column_names):
+        msg = "Column names are different in different sheets."
+        raise ValueError(msg)
+
 
 # Get rid of spaces
 def read_file(file_path) -> dict:

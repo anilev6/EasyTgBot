@@ -38,6 +38,8 @@ By default, in the bot:
 
 - `from easytgbot import send_text, send_keyboard` <- these async functions accept `update`, `context`, and "string_text_key" from the .xlsx file.
 
+- See `__init__.py` for more features.
+
 ### Other
 
 Logs are rotating automatically.
@@ -72,20 +74,16 @@ Ctrl+C to exit.
 
 `easy-tg-bot run` command runs "main.py" file, so one can as well run the file directly after it's created.
 
-- `/admin` -> *edit text file*
-
-- `/admin` ->  *add intro video* - If there is no caption in the text file for it, it is not being sent. So, to delete the intro video, just delete the corresponding caption in the settings above.
+- `/admin` - admin panel
 
 - `/start` -> makes user pick a language, agree to data_policy and share a phone number.
 
-*See `main.py` for more details on how to configure the start coveration.*
+*See `main.py` for more details on how to configure the start coveration and explore /admin*
 
 ## # TODO
 
 - `/admin` -> *mailing service*
 
-- `/admin` -> *bot settings*
-
-- `/admin` -> *bot settings* -> *add/remove peope* -> (maybe also through exel file) - if a list of users exists in the file, lock the access to the bot.
-
 - `/superadmin` - list of superadmin commands: `/get_db`, `/bot_down`, etc
+
+- Add more features description to `README` from `__init__.py`
