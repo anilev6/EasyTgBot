@@ -41,19 +41,6 @@ def role_required(allowed_roles = DEFAULT_ALLOWED_ROLES):
         return wrapper
     return decorator
 
-# Ban
-def ban_user(context, user_id=None):
-    current_role = get_role(context, user_id)
-    if current_role not in ("admin", "superadmin"):
-        add_role(context, "banned", user_id)
-        return True
-
-def unban_user(context, user_id=None):
-    current_role = get_role(context, user_id)
-    if current_role == "banned":
-        add_role(context, "user", user_id)
-        return True
-
 # /start
 def add_a_role_on_start(update, context):
     user_id = update.effective_user.id
@@ -102,8 +89,7 @@ def get_people_layout(context, role):
         f"{i+1}. {user_id}\n{get_user_data_essential(context, user_id)}"
         for i, user_id in enumerate(people_ids)
     ]
-    return f"{role}".upper() + "\n\n" + "\n\n".join(info_lines)
-
+    return info_lines
 
 def get_all_people(context) -> list:
     general_user_data = context.application.user_data
