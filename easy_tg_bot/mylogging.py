@@ -6,11 +6,12 @@ import sys
 import os
 import time
 from datetime import datetime
+import pytz
 
 import re
 import functools
 
-from .settings import BOT_NAME
+from .settings import BOT_NAME, TIME_ZONE
 
 
 NAME = f"{BOT_NAME}.log"
@@ -20,7 +21,10 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 
 # Time convention
 def get_time(string=False):
-    time = datetime.now() # tz=pytz.timezone(TIME_ZONE))
+    if TIME_ZONE:
+        time = datetime.now(tz=pytz.timezone(str(TIME_ZONE)))
+    else:
+        time = datetime.now()
     if string:
         return time.strftime("%d_%m_%Y_%H_%M_%S_%f")
     return time

@@ -11,6 +11,8 @@ load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
 def get_secret_by_name(name: str):
     return os.getenv(name)
 
+# Optional
+TIME_ZONE = get_secret_by_name("TIME_ZONE")
 
 # TG creds
 BOT_NAME = get_secret_by_name("TG_BOT_NAME")

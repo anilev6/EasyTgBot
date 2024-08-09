@@ -1,13 +1,11 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ConversationHandler
-
 # from uuid import uuid1
-from datetime import datetime
 
 from .context_logic import get_user_data, clear_cache
 from ..text_handler import text_handler
 from ..send import mute_last_active_keyboard, send_text
-from ..mylogging import logger
+from ..mylogging import logger, get_time
 
 
 # Info utils
@@ -16,7 +14,7 @@ def get_user_open_tg_info(user) -> dict:
     # Gather user info from telegram user object
     user_info = {
         # "uuid": uuid1(),  # additional anonimization
-        "added_on": str(datetime.now()),
+        f"{ESSENTIAL_INFO_PREFIX}_added_on": get_time(string=True),
         f"{ESSENTIAL_INFO_PREFIX}_username": f"@{user.username}",
         f"{ESSENTIAL_INFO_PREFIX}_first_name": user.first_name,
         f"{ESSENTIAL_INFO_PREFIX}_last_name": user.last_name,

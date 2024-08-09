@@ -24,11 +24,9 @@ from .send import send_video_from_file_id
 from .roles import role_required, check_role, DEFAULT_ADMIN_ROLES, DEFAULT_ALLOWED_ROLES, get_people_layout
 # for adding the handlers on init automatically
 from .manage_role_conv import ManageRoleConverstion
+from .send_with_navigation import send_page_with_navigation, send_page_nav
 
 # TODO
-# - Send with pagination
-# - Present users
-
 # - Test adding a language (only to a user for example)
 
 # - Dockerfile, .dockerignore

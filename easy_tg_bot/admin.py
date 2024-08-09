@@ -6,6 +6,7 @@ from .decorators import command
 
 from .text_handler import text_handler
 from .send import send_keyboard
+from .utils.utils import clear_cache
 
 
 # List of buttons; must be unique and present in the text.xlsx;
@@ -23,6 +24,7 @@ ADMIN_MENU = [
 async def admin(update: Update, context: CallbackContext):
     # each represent a conversation handler, for example add_text_conv.py,
     # which is then connected at main.py
+    clear_cache(context) # refresh cache
     options = {
         text_handler.get_text(context, option): option for option in ADMIN_MENU
     }

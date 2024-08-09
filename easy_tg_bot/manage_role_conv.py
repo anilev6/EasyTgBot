@@ -7,11 +7,12 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 
-from .roles import DEFAULT_ADMIN_ROLES, check_role, add_role, is_bot_closed, close_bot_for_users, open_bot_for_users
+from .roles import DEFAULT_ADMIN_ROLES, check_role, add_role, is_bot_closed, close_bot_for_users, open_bot_for_users, get_people_layout
 from .admin import admin, ADMIN_MENU
 from .text_handler import text_handler
 from .utils.utils import get_keyboard, get_info_from_query
 from .send import send_keyboard, send_text
+from .send_with_navigation import send_page_with_navigation
 from .mylogging import logger
 from .decorators import register_conversation_handler, button_callback
 
@@ -237,14 +238,13 @@ async def get_users_by_role_menu(update, context):
 
 @button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
 async def admin_get_users(update, context):
-    choice = await get_info_from_query(update, "admin_get_users")
-    # TODO send with pagination
-    print(choice)
-
-    keyboard = get_keyboard(
+    role = await get_info_from_query(update, "admin_get_users")
+    return await send_page_with_navigation(
+        update,
         context,
-        # options,
-        # prefix=prefix,
-        back_button_callback="get_users_by_role_menu",
+        lines_header=f"admin_get_users_header_{role}",
+        get_lines_func=lambda context: get_people_layout(context, role),
+        lines_to_text_func=lambda l: "\n\n".join(l),
+        callback_func=get_users_by_role_menu,
+        clear_cache = True
     )
-    return await send_keyboard(update, context, keyboard, f"admin_get_users_header_{choice}")
