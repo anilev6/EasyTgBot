@@ -10,7 +10,12 @@ DRAFTS_FOLDER_PATH = os.path.join(
 )
 
 
-def initialize_file_from_draft(file_name):
+def initialize_file_from_draft(file_name, root_dir):
+    # Create files
+    output_file = os.path.join(root_dir, file_name)
+    if os.path.exists(output_file):
+        return
+
     # Debug
     if not os.path.exists(DRAFTS_FOLDER_PATH):
         logging.error(f"Templates folder '{DRAFTS_FOLDER_PATH}' does not exist.")
@@ -22,21 +27,14 @@ def initialize_file_from_draft(file_name):
         return 
 
     # Create files
-    current_directory = os.getcwd()
-    output_file = os.path.join(current_directory, file_name)
-    if not os.path.exists(output_file):
-        shutil.copy(draft_path, output_file)
-        logging.info(f"{file_name} file created.")
-
-        # The unfilled config
-        if file_name == ".env":
-            raise ValueError("Please fill the .env file and try again.")
+    shutil.copy(draft_path, output_file)
+    logging.info(f"{file_name} file created.")
 
     return True
 
 
-def initialize_all_files_from_drafts():
+def initialize_all_files_from_drafts(root_dir):
     return all(
-        initialize_file_from_draft(file_name)
+        initialize_file_from_draft(file_name, root_dir)
         for file_name in os.listdir(DRAFTS_FOLDER_PATH)
     )

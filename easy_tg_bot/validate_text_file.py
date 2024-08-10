@@ -1,9 +1,10 @@
 import pandas as pd
 
 from .mylogging import logger
+from . import settings
 
 
-DEFAULT_TEXT_FILE = "text.xlsx"
+DEFAULT_TEXT_FILE = settings.FILE_FOLDER_PATH + "text.xlsx"
 PARSE_MODE_COLUMN = "PARSE MODE"
 INDEX_COLUMN = "TEXT INDEX"
 VALIDATION_MESSAGE = "validate_text_{}"  # text.xlsx

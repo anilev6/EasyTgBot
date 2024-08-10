@@ -33,7 +33,7 @@ from .app import lambda_handler
 # - update the version without stopping (/superadmin command?)
 
 # - Mailing service
-# - Error handling
+# - Error handling and default /help command
 # - Log errors and warnings to superadmin
 # - Forget user /forget_me; Delete user;
 # - /superadmin /get_bd /bot_down
