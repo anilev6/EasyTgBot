@@ -25,9 +25,9 @@ from .roles import role_required, check_role, DEFAULT_ADMIN_ROLES, DEFAULT_ALLOW
 from .send_with_navigation import send_page_with_navigation, send_page_nav
 # for adding the handlers on init automatically
 from .manage_role_conv import ManageRoleConverstion
+# Serverless lambda
+from .app import lambda_handler
 # TODO
-# - Web-hooks
-# - Deploy ?
 # - update the deployed version without stopping (/superadmin command?)
 # - Dockerfile, .dockerignore
 # - update the version without stopping (/superadmin command?)

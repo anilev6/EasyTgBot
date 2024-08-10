@@ -4,15 +4,18 @@ from dotenv import load_dotenv
 from .utils.init_templates import initialize_file_from_draft
 
 
-initialize_file_from_draft(".env")
-load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
+# Create .env
+def initialize_env():
+    initialize_file_from_draft(".env")
+    load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
 
-
+# Get sectret
 def get_secret_by_name(name: str):
     return os.getenv(name)
 
 # Optional
 TIME_ZONE = get_secret_by_name("TIME_ZONE")
+WEBHOOK_URL = get_secret_by_name("WEBHOOK_URL")
 
 # TG creds
 BOT_NAME = get_secret_by_name("TG_BOT_NAME")
@@ -21,9 +24,7 @@ TG_BOT_TOKEN = get_secret_by_name("TG_BOT_TOKEN")
 # Tg IDs
 MY_TG_ID = str(get_secret_by_name("MY_TG_ID"))
 
-DEFAULT_ROLES = {
-    MY_TG_ID: "superadmin"
-}
+DEFAULT_ROLES = {MY_TG_ID: "superadmin"}
 
 def get_default_role(user_id):
     return DEFAULT_ROLES.get(str(user_id), "user")
