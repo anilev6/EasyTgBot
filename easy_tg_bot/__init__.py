@@ -46,3 +46,4 @@ from .settings import get_secret_by_name, DEFAULT_ROLES
 # - Replace 'nan' with None
 # - Small Bug fix: Error in not_data_consent ?
 # - Bug fix: None.log occasionally on run 
+# - Add settings.py to templates and create it with main 
