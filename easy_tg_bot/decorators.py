@@ -68,7 +68,7 @@ def message_handler(prefix=None, allowed_roles = DEFAULT_ALLOWED_ROLES):
                 if not update.message:
                     return False
                 else:
-                    if not update.message.text:
+                    if not update.message.text.strip():
                         return False
             else:
                 return False
