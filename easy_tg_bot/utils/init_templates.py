@@ -1,6 +1,5 @@
 import os
 import shutil
-import logging
 
 
 # Consts
@@ -18,17 +17,17 @@ def initialize_file_from_draft(file_name, root_dir):
 
     # Debug
     if not os.path.exists(DRAFTS_FOLDER_PATH):
-        logging.error(f"Templates folder '{DRAFTS_FOLDER_PATH}' does not exist.")
+        print(f"Templates folder '{DRAFTS_FOLDER_PATH}' does not exist.")
         return
 
     draft_path = os.path.join(DRAFTS_FOLDER_PATH, file_name)
     if not os.path.exists(draft_path):
-        logging.error(f"{draft_path} does not exist.")
+        print(f"{draft_path} does not exist.")
         return 
 
     # Create files
     shutil.copy(draft_path, output_file)
-    logging.info(f"{file_name} file created.")
+    print(f"{file_name} file created.")
 
     return True
 
