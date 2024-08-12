@@ -29,6 +29,7 @@ from .manage_role_conv import ManageRoleConverstion
 from .app import lambda_handler
 __version__ = "0.1.3"
 from .decorators import message_handler
+__version__ = "0.1.4"
 from .app import application
 from .settings import get_secret_by_name, DEFAULT_ROLES
 # TODO

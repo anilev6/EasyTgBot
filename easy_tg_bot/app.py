@@ -6,9 +6,9 @@ import os
 from telegram.ext import Application, ApplicationBuilder, PicklePersistence
 from telegram import Update
 
-from . import settings
 from .utils.init_templates import initialize_file_from_draft
 from .mylogging import time_log_decorator, logger
+from . import settings
 
 # add handlers just with decorators throughout the code
 from .decorators import add_handlers
@@ -41,7 +41,7 @@ class MyApplication(Application):
 
 # --------------------------------------------TELEGRAM APP---------------------------------
 @time_log_decorator
-def prepare_app(debug):
+def prepare_app():
     root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd() 
     initialize_file_from_draft("text.xlsx", root_dir)
     persistence = PicklePersistence(
@@ -58,7 +58,7 @@ def prepare_app(debug):
     return application
 
 # App instance
-application = prepare_app(False)
+application = prepare_app()
 
 # Operations
 @time_log_decorator
