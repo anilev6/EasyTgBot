@@ -30,6 +30,7 @@ from .app import lambda_handler
 __version__ = "0.1.3"
 from .decorators import message_handler
 from .app import application
+from .settings import get_secret_by_name, DEFAULT_ROLES
 # TODO
 # - update the deployed version without stopping (/superadmin command?)
 # - Dockerfile, .dockerignore
