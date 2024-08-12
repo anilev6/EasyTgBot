@@ -29,6 +29,7 @@ from .manage_role_conv import ManageRoleConverstion
 from .app import lambda_handler
 __version__ = "0.1.3"
 from .decorators import message_handler
+from .app import application
 # TODO
 # - update the deployed version without stopping (/superadmin command?)
 # - Dockerfile, .dockerignore

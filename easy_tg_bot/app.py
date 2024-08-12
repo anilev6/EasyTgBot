@@ -54,14 +54,17 @@ def prepare_app(debug):
         .persistence(persistence)
         .build()
     )
-    # Add handlers; needs to be called at the end for the decorators reason
-    add_handlers(application, debug)
+
     return application
 
+# App instance
+application = prepare_app(False)
 
+# Operations
 @time_log_decorator
 def telegram_bot_polling(debug = False):
-    application = prepare_app(debug)
+    # Add handlers; needs to be called at the end for the decorators reason
+    add_handlers(application, debug)
     # Ignore exception when Ctrl-C is pressed
     with contextlib.suppress(KeyboardInterrupt):  
         application.run_polling()
@@ -69,7 +72,8 @@ def telegram_bot_polling(debug = False):
 
 @time_log_decorator
 async def process_update(event, context):
-    application = prepare_app(False)
+    # Add handlers; needs to be called at the end for the decorators reason
+    add_handlers(application)
     try:
         await application.initialize()
         await application.process_update(
