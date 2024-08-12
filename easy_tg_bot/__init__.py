@@ -27,6 +27,8 @@ from .send_with_navigation import send_page_with_navigation, send_page_nav
 from .manage_role_conv import ManageRoleConverstion
 # Serverless lambda
 from .app import lambda_handler
+__version__ = "0.1.3"
+from .decorators import message_handler
 # TODO
 # - update the deployed version without stopping (/superadmin command?)
 # - Dockerfile, .dockerignore

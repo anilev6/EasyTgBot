@@ -1,4 +1,10 @@
-from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler
+from telegram.ext import (
+    CommandHandler,
+    CallbackQueryHandler,
+    ConversationHandler,
+    MessageHandler,
+    filters,
+)
 from functools import wraps
 from uuid import uuid1
 
@@ -8,6 +14,7 @@ from .roles import check_role, DEFAULT_ALLOWED_ROLES
 COMMAND_HANDLERS = {}
 CALLBACK_HANDLERS = {}
 CONVERSATION_HANDLERS = {}
+MESSAGE_HANDLERS = {}
 
 
 # Decorators
@@ -49,6 +56,32 @@ def button_callback(prefix=None, allowed_roles = DEFAULT_ALLOWED_ROLES):
     return decorator
 
 
+def message_handler(prefix=None, allowed_roles = DEFAULT_ALLOWED_ROLES):
+    """One per app, for now"""
+    def decorator(func):
+        # TODO prefix
+        name = "message_handler"
+
+        @wraps(func)
+        async def wrapper(update, context, *args, **kwargs):
+            if update:
+                if not update.message:
+                    return False
+                else:
+                    if not update.message.text:
+                        return False
+            else:
+                return False
+
+            if not check_role(context, allowed_roles):
+                return ConversationHandler.END
+            return await func(update, context, *args, **kwargs)
+
+        MESSAGE_HANDLERS[name] = wrapper
+        return wrapper
+    return decorator
+
+
 # Utils
 def register_conversation_handler(handler):
     # required for persistence
@@ -57,6 +90,11 @@ def register_conversation_handler(handler):
 
 
 def add_handlers(application, debug=False):
+    for _, h in MESSAGE_HANDLERS.items():
+        application.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, h)
+        )
+
     for _, h in CONVERSATION_HANDLERS.items():
         application.add_handler(h)
 
@@ -68,9 +106,8 @@ def add_handlers(application, debug=False):
 
     if debug:
         info_lines = ["HANDLERS REGISTERED"]
-        names = ["conversations", "commands", "button callbacks"]
-        dicts = [CONVERSATION_HANDLERS, COMMAND_HANDLERS, CALLBACK_HANDLERS]
-        
+        names = ["messages", "conversations", "commands", "button callbacks"]
+        dicts = [MESSAGE_HANDLERS, CONVERSATION_HANDLERS, COMMAND_HANDLERS, CALLBACK_HANDLERS]
         for name, handler_dict in zip(names, dicts):
             if handler_dict:
                 info_lines.append(f"{name}:")
