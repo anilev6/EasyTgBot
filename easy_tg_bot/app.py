@@ -40,7 +40,6 @@ class MyApplication(Application):
 
 
 # --------------------------------------------TELEGRAM APP---------------------------------
-@time_log_decorator
 def prepare_app():
     root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd() 
     initialize_file_from_draft("text.xlsx", root_dir)
