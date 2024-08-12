@@ -8,15 +8,14 @@ from .utils.init_templates import initialize_file_from_draft
 def get_secret_by_name(name: str, default=None):
     result = os.getenv(name)
     if not result and default is None: 
-        try:
-            load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
-        except Exception as e:
+        if not os.path.exists(os.path.join(os.getcwd(), ".env")):
             initialize_file_from_draft(".env", os.getcwd())
-            print(f"ERROR: please place and fill .env file in the current working directory: {e}")
+            raise Exception("No .env file found in the current working directory. Please fill .env file.")
+        load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
     return result or default
 
 # TG creds
-BOT_NAME = get_secret_by_name("TG_BOT_NAME")
+TG_BOT_NAME = get_secret_by_name("TG_BOT_NAME")
 TG_BOT_TOKEN = get_secret_by_name("TG_BOT_TOKEN")
 
 # Tg IDs
@@ -25,7 +24,7 @@ TG_MY_ID = str(get_secret_by_name("TG_MY_ID"))
 # Optional
 TG_TIME_ZONE = get_secret_by_name("TG_TIME_ZONE", "")
 TG_WEBHOOK_URL = get_secret_by_name("TG_WEBHOOK_URL", "")
-FILE_FOLDER_PATH = get_secret_by_name("TG_FILE_FOLDER_PATH", "")
+TG_FILE_FOLDER_PATH = get_secret_by_name("TG_FILE_FOLDER_PATH", "")
 
 DEFAULT_ROLES = {TG_MY_ID: "superadmin"}
 

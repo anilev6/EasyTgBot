@@ -14,15 +14,15 @@ import functools
 from . import settings
 
 
-NAME = settings.FILE_FOLDER_PATH + f"{settings.BOT_NAME}.log"
+NAME = settings.TG_FILE_FOLDER_PATH + f"{settings.TG_BOT_NAME}.log"
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
 
 # Time convention
 def get_time(string=False):
-    if settings.TIME_ZONE:
-        time = datetime.now(tz=pytz.timezone(str(settings.TIME_ZONE)))
+    if settings.TG_TIME_ZONE:
+        time = datetime.now(tz=pytz.timezone(str(settings.TG_TIME_ZONE)))
     else:
         time = datetime.now()
     if string:

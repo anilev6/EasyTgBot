@@ -14,7 +14,7 @@ class FileHandler:
         validate_function=lambda file_path: (200, "validate_200"),     
     ):
         self.prefix = prefix
-        self.default_path = settings.FILE_FOLDER_PATH + f"{prefix}.xlsx"
+        self.default_path = settings.TG_FILE_FOLDER_PATH + f"{prefix}.xlsx"
         self.file_key = f"{prefix}_file"
         self.key_to_iter = f"{prefix}_iterable"
         # To call inside the class; to call outside, put extra arg in
@@ -25,7 +25,7 @@ class FileHandler:
     async def download_file(self, update: Update):
         file_extension = update.message.effective_attachment.file_name.split(".")[-1]
         file_name = self.prefix + "_from_" + get_time(string=True)
-        file_path = settings.FILE_FOLDER_PATH + f"{file_name}.{file_extension}"
+        file_path = settings.TG_FILE_FOLDER_PATH + f"{file_name}.{file_extension}"
         new_file = await update.message.effective_attachment.get_file()
         await new_file.download_to_drive(file_path)
         return file_path

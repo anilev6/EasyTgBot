@@ -42,10 +42,10 @@ class MyApplication(Application):
 # --------------------------------------------TELEGRAM APP---------------------------------
 @time_log_decorator
 def prepare_app(debug):
-    root_dir = settings.FILE_FOLDER_PATH or os.getcwd() 
+    root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd() 
     initialize_file_from_draft("text.xlsx", root_dir)
     persistence = PicklePersistence(
-        filepath=f"{settings.FILE_FOLDER_PATH}{settings.BOT_NAME}Persistence", on_flush=True
+        filepath=f"{settings.TG_FILE_FOLDER_PATH}{settings.TG_BOT_NAME}Persistence", on_flush=True
     )
     application = (
         ApplicationBuilder()
