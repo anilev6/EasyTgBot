@@ -11,7 +11,9 @@ def get_secret_by_name(name: str, default=None):
         if not os.path.exists(os.path.join(os.getcwd(), ".env")):
             initialize_file_from_draft(".env", os.getcwd())
             raise Exception("No .env file found in the current working directory. Please fill .env file.")
-        load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
+        env_result = load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True, verbose=True)
+        if not env_result:
+            raise ValueError("Error initializing .env")
     return result or default
 
 # TG creds
