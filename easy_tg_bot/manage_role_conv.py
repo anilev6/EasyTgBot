@@ -8,7 +8,7 @@ from telegram.ext import (
 )
 
 from .roles import DEFAULT_ADMIN_ROLES, check_role, add_role, is_bot_closed, close_bot_for_users, open_bot_for_users, get_people_layout
-from .admin import admin, ADMIN_MENU
+from .admin import admin
 from .text_handler import text_handler
 from .utils.utils import get_keyboard, get_info_from_query
 from .send import send_keyboard, send_text
@@ -118,8 +118,6 @@ admin_convo_handlers = [
 ]
 for h in admin_convo_handlers:
     register_conversation_handler(h.bot_handler)
-
-ADMIN_MENU.append("admin_manage_users_button")
 
 
 @button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)

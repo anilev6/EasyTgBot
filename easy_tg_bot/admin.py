@@ -14,10 +14,12 @@ from .utils.utils import clear_cache
 ADMIN_MAIN_MENU_HEADER = "admin_menu_header"
 ADD_TEXT_BUTTON = "add_text_button"
 ADD_INTRO_VID_BUTTON = "add_intro_video_button"
+MANAGE_USERS_BUTTON = "admin_manage_users_button"
 MAILING_BUTTON = "mailing_users_button"
 ADMIN_MENU = [
     ADD_TEXT_BUTTON,
     ADD_INTRO_VID_BUTTON,
+    MANAGE_USERS_BUTTON,
     MAILING_BUTTON,
 ]
 
