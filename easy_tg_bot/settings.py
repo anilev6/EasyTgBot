@@ -28,7 +28,11 @@ TG_TIME_ZONE = get_secret_by_name("TG_TIME_ZONE", "")
 TG_WEBHOOK_URL = get_secret_by_name("TG_WEBHOOK_URL", "")
 TG_FILE_FOLDER_PATH = get_secret_by_name("TG_FILE_FOLDER_PATH", "")
 
-DEFAULT_ROLES = {}
+DEFAULT_ROLES_DICT = {}
+
+# Possible values: superadmin, admin, user, banned
+def default_roles(roles):
+    DEFAULT_ROLES_DICT.update({str(get_secret_by_name(k)): v for k, v in roles.items()})
 
 def get_default_role(user_id):
-    return DEFAULT_ROLES.get(str(user_id), "user")
+    return DEFAULT_ROLES_DICT.get(str(user_id), "user")
