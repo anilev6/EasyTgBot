@@ -21,7 +21,7 @@ from .put_intro_video_conv import PutVideoConversation
 __version__ = "0.1.1"
 from .utils.context_logic import get_chat_data, put_chat_data, get_user_data, put_user_data, clear_cache
 from .send import send_video_from_file_id
-from .roles import role_required, check_role, DEFAULT_ADMIN_ROLES, DEFAULT_ALLOWED_ROLES, get_people_layout
+from .roles import role_required, check_role, DEFAULT_ADMIN_ROLES, DEFAULT_ALLOWED_ROLES, get_people_layout, get_people_role_group
 from .send_with_navigation import send_page_with_navigation, send_page_nav
 # for adding the handlers on init automatically
 from .manage_role_conv import ManageRoleConverstion
@@ -32,6 +32,8 @@ from .decorators import message_handler
 __version__ = "0.1.4"
 from .app import application
 from .settings import get_secret_by_name, DEFAULT_ROLES
+# for adding the handlers on init automatically
+from .mail_users_conv import message_mailing_conv_handler
 # TODO
 # - update the deployed version without stopping (/superadmin command?)
 # - Dockerfile, .dockerignore
@@ -45,5 +47,5 @@ from .settings import get_secret_by_name, DEFAULT_ROLES
 
 # - Replace 'nan' with None
 # - Small Bug fix: Error in not_data_consent ?
-# - Bug fix: None.log occasionally on run 
-# - Add settings.py to templates and create it with main 
+# - Bug fix: None.log occasionally on run
+# - Add settings.py to templates and create it with main

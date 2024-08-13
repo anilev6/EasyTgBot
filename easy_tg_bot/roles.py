@@ -83,6 +83,15 @@ def get_people(context, role) -> list:
         if general_user_data.get(user_id, {}).get("role", "") == role
     ]
 
+def get_people_role_group(context, role_group):
+    general_user_data = context.application.user_data
+    return [
+        str(user_id)
+        for user_id in general_user_data
+        if general_user_data.get(user_id, {}).get("role", "") in role_group
+    ]
+
+
 def get_people_layout(context, role):
     people_ids = get_people(context, role)
     info_lines = [
