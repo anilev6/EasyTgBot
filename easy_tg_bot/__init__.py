@@ -1,7 +1,7 @@
 # Stuff to use
 __version__ = "0.1.0"
 from .app import telegram_bot_polling
-from .mylogging import time_log_decorator, logger
+from .mylogging import time_log_decorator, logger, get_time
 from .decorators import command, button_callback, register_conversation_handler
 from .admin import admin, ADMIN_MENU
 from .text_handler import text_handler
