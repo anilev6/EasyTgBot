@@ -33,6 +33,10 @@ class MyApplication(Application):
             for user_id, data in self.user_data.items():
                 await self.persistence.update_user_data(user_id, data)
             for chat_id, data in self.chat_data.items():
+                # Sanitize for unpickable objects: convention
+                for k in list(data.keys()):
+                    if k.endswith("_func"):
+                        data.pop(k)
                 await self.persistence.update_chat_data(chat_id, data)
 
         # Call the original stop method
