@@ -8,6 +8,7 @@ from easy_tg_bot import get_secret_by_name, settings
 TG_MY_ID = str(get_secret_by_name("TG_MY_ID"))
 
 # Default roles
+# Possible values: superadmin, admin, user, banned
 ROLES = {
     TG_MY_ID: "superadmin"
 }
