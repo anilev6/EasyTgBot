@@ -14,6 +14,9 @@ def get_secret_by_name(name: str, default=None):
         env_result = load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True, verbose=True)
         if not env_result:
             raise ValueError("Error initializing .env")
+        result = os.getenv(name)
+        if not result:
+            raise ValueError(f"Error initializing env variable: {name}")
     return result or default
 
 # TG creds
