@@ -35,15 +35,11 @@ from .settings import get_secret_by_name, DEFAULT_ROLES
 # for adding the handlers on init automatically
 from .mail_users_conv import message_mailing_conv_handler
 # TODO
-# - update the deployed version without stopping (/superadmin command?)
 # - Dockerfile, .dockerignore
-# - update the version without stopping (/superadmin command?)
-
-# - Mailing service
-# - Error handling and default /help command
-# - Log errors and warnings to superadmin
+# - Error handling
 # - Forget user /forget_me; Delete user;
-# - /superadmin /get_bd /bot_down
+# - /superadmin /restart; /poetry_update;
+# - Log errors and warnings to superadmin
 
 # - Replace 'nan' with None
 # - Small Bug fix: Error in not_data_consent ?
