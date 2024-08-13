@@ -38,6 +38,7 @@ def run(upd_env):
     initialize_file_from_draft("settings.py", root_dir)
     initialize_file_from_draft("text.xlsx", root_dir)
     initialize_file_from_draft("main.py", root_dir)
+    initialize_file_from_draft(".gitignore", root_dir)
     # poetry ads
     try:
         os.system("poetry run python main.py")
