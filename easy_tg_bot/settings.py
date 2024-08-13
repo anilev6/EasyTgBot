@@ -23,15 +23,12 @@ def get_secret_by_name(name: str, default=None):
 TG_BOT_NAME = get_secret_by_name("TG_BOT_NAME")
 TG_BOT_TOKEN = get_secret_by_name("TG_BOT_TOKEN")
 
-# Tg IDs
-TG_MY_ID = str(get_secret_by_name("TG_MY_ID"))
-
 # Optional
 TG_TIME_ZONE = get_secret_by_name("TG_TIME_ZONE", "")
 TG_WEBHOOK_URL = get_secret_by_name("TG_WEBHOOK_URL", "")
 TG_FILE_FOLDER_PATH = get_secret_by_name("TG_FILE_FOLDER_PATH", "")
 
-DEFAULT_ROLES = {TG_MY_ID: "superadmin"}
+DEFAULT_ROLES = {}
 
 def get_default_role(user_id):
     return DEFAULT_ROLES.get(str(user_id), "user")

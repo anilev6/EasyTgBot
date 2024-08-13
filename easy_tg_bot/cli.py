@@ -35,6 +35,7 @@ def run(upd_env):
         clear_env_variables()
 
     root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
+    initialize_file_from_draft("settings.py", root_dir)
     initialize_file_from_draft("text.xlsx", root_dir)
     initialize_file_from_draft("main.py", root_dir)
     # poetry ads

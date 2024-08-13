@@ -34,6 +34,7 @@ from .app import application
 from .settings import get_secret_by_name, DEFAULT_ROLES
 # for adding the handlers on init automatically
 from .mail_users_conv import message_mailing_conv_handler
+from . import settings
 # TODO
 # - Dockerfile, .dockerignore
 # - Error handling
@@ -41,7 +42,8 @@ from .mail_users_conv import message_mailing_conv_handler
 # - /superadmin /restart; /poetry_update;
 # - Log errors and warnings to superadmin
 
+# - Conversaions stuck
 # - Replace 'nan' with None
 # - Small Bug fix: Error in not_data_consent ?
 # - Bug fix: None.log occasionally on run
-# - Add settings.py to templates and create it with main
+

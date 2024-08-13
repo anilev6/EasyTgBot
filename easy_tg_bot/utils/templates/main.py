@@ -1,4 +1,6 @@
 import easy_tg_bot
+# initiate other modules
+import settings
 
 
 @easy_tg_bot.command()
