@@ -66,7 +66,8 @@ Make sure poetry is installed. From this folder,
 
 *! Fill the `.env` file in your working directory before or after this command*
 
-`easy-tg-bot run --upd-env` - run the bot (polling) with the updated .env.
+`easy-tg-bot run` - run the bot (polling);
+`easy-tg-bot run --docker` - deploy using .env file
 
 In the bot if run is successful, try `/admin`.
 

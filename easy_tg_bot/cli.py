@@ -23,29 +23,24 @@ def clear_env_variables():
     for key in os.environ:
         if key.startswith("TG_"):
             os.putenv(key, "")
-            print(f"CLEARED ENV: {key}")
+            # print(f"CLEARED ENV: {key}")
 
 
 # Builds neccessary files for the developer and runs polling
-@click.option("--upd-env", is_flag=True, help="Clear old env. var. configuration")
+# @click.option("--upd-env", is_flag=True, help="Clear old env. var. configuration")
 @click.option("--docker", is_flag=True, help="Deploy as a Docker container; env vars from .env")
 @cli.command()
-def run(upd_env, docker):
-    if upd_env:
-        clear_env_variables()
+def run(docker):
+    # make it read .env file every time at least for TG_
+    clear_env_variables()
 
-        root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
-        initialize_file_from_draft("settings.py", root_dir)
-        initialize_file_from_draft("text.xlsx", root_dir)
-        initialize_file_from_draft("main.py", root_dir)
-        initialize_file_from_draft(".gitignore", root_dir)
+    root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
+    initialize_file_from_draft("settings.py", root_dir)
+    initialize_file_from_draft("text.xlsx", root_dir)
+    initialize_file_from_draft("main.py", root_dir)
+    initialize_file_from_draft(".gitignore", root_dir)
 
-    elif docker:
-        root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
-        initialize_file_from_draft("settings.py", root_dir)
-        initialize_file_from_draft("text.xlsx", root_dir)
-        initialize_file_from_draft("main.py", root_dir)
-        initialize_file_from_draft(".gitignore", root_dir)
+    if docker:
         initialize_file_from_draft("Dockerfile", root_dir)
         initialize_file_from_draft(".dockerignore", root_dir)
         create_yaml_file()

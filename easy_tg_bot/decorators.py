@@ -90,13 +90,14 @@ def register_conversation_handler(handler):
 
 
 def add_handlers(application, debug=False):
-    for _, h in MESSAGE_HANDLERS.items():
-        application.add_handler(
-            MessageHandler(filters.TEXT & ~filters.COMMAND, h)
-        )
-
+    # convos have to go first
     for _, h in CONVERSATION_HANDLERS.items():
         application.add_handler(h)
+
+    for _, h in MESSAGE_HANDLERS.items():
+        application.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.conversation, h)
+        )
 
     for k, v in COMMAND_HANDLERS.items():
         application.add_handler(CommandHandler(k, v))
@@ -106,8 +107,13 @@ def add_handlers(application, debug=False):
 
     if debug:
         info_lines = ["HANDLERS REGISTERED"]
-        names = ["messages", "conversations", "commands", "button callbacks"]
-        dicts = [MESSAGE_HANDLERS, CONVERSATION_HANDLERS, COMMAND_HANDLERS, CALLBACK_HANDLERS]
+        names = ["conversations", "messages", "commands", "button callbacks"]
+        dicts = [
+            CONVERSATION_HANDLERS,
+            MESSAGE_HANDLERS,
+            COMMAND_HANDLERS,
+            CALLBACK_HANDLERS,
+        ]
         for name, handler_dict in zip(names, dicts):
             if handler_dict:
                 info_lines.append(f"{name}:")
