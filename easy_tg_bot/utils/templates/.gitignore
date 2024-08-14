@@ -161,4 +161,4 @@ cython_debug/
 
 # easy-tg-bot
 *Persistence
-*.log*
+*.log.*
