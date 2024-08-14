@@ -32,6 +32,7 @@ from .decorators import message_handler
 __version__ = "0.1.4"
 from .app import application
 from .settings import get_secret_by_name, default_roles
+__version__ = "0.1.5"
 # for adding the handlers on init automatically
 from .mail_users_conv import message_mailing_conv_handler
 from . import superadmin # INFO_LINES for superadmin menu
