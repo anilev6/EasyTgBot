@@ -37,13 +37,14 @@ __version__ = "0.1.5"
 from .mail_users_conv import message_mailing_conv_handler
 from . import superadmin # INFO_LINES for superadmin menu
 from . import error
+__version__ = "0.1.6"
 # TODO
-# - Hung convo bug - test
 # - Forget user /forget_me; Delete user;
-# - Limiter
+# - Hung convo bug - test
 # - Connection error handler
-# - Conversaions stuck
+# - Limiter
 # - Replace 'nan' with None
 # - Small Bug fix: Error in not_data_consent ?
 # - Bug fix: None.log occasionally on run
 # - /restart_me
+# - optional number share

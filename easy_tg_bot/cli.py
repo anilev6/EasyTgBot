@@ -39,11 +39,6 @@ def run(upd_env, docker):
         initialize_file_from_draft("text.xlsx", root_dir)
         initialize_file_from_draft("main.py", root_dir)
         initialize_file_from_draft(".gitignore", root_dir)
-        # poetry ads
-        try:
-            os.system("poetry run python main.py")
-        except Exception as e:
-            logger.error("Please install poetry, or launch main.py directly yourself. Sorry!")
 
     elif docker:
         root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
@@ -55,6 +50,15 @@ def run(upd_env, docker):
         initialize_file_from_draft(".dockerignore", root_dir)
         create_yaml_file()
         run_container()
+        return
+
+    # poetry ads
+    try:
+        os.system("poetry run python main.py")
+    except Exception as e:
+        logger.error(
+            "Please install poetry, or launch main.py directly yourself. Sorry!"
+        )
 
 
 # Set the webhook for a Telegram Bot
