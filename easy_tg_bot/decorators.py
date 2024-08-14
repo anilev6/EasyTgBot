@@ -96,7 +96,7 @@ def add_handlers(application, debug=False):
 
     for _, h in MESSAGE_HANDLERS.items():
         application.add_handler(
-            MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.conversation, h)
+            MessageHandler(filters.TEXT & ~filters.COMMAND, h)
         )
 
     for k, v in COMMAND_HANDLERS.items():
