@@ -65,13 +65,15 @@ class CustomStreamHandler(logging.StreamHandler):
             self.handleError(record)
 
 
+# Windows problem? delay = True
+# https://stackoverflow.com/questions/22459850/permissionerror-when-using-python-3-3-4-and-rotatingfilehandler
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         CustomStreamHandler(),
-        # automatic log rotation
-        handlers.RotatingFileHandler(NAME, maxBytes=2 * 1024 * 10, backupCount=5),
+        # # automatic log rotation
+        handlers.RotatingFileHandler(NAME, maxBytes=2 * 1024 * 10, backupCount=5, delay=True),
     ],
 )
 

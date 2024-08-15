@@ -7,19 +7,26 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 
-from .roles import DEFAULT_ADMIN_ROLES, check_role, add_role, is_bot_closed, close_bot_for_users, open_bot_for_users, get_people_layout
+from .roles import (
+    DEFAULT_ADMIN_ROLES,
+    check_role,
+    add_role,
+    is_bot_closed,
+    close_bot_for_users,
+    open_bot_for_users,
+    get_people_layout,
+)
 from .admin import admin
 from .text_handler import text_handler
 from .utils.utils import get_keyboard, get_info_from_query
-from .send import send_keyboard, send_text
+from .send import send_message
 from .send_with_navigation import send_page_with_navigation
 from .mylogging import logger
 from .decorators import register_conversation_handler, button_callback
 
 
 class ManageRoleConverstion:
-    def __init__(
-        self, prefix, role, main_func = lambda context, user_id: None):
+    def __init__(self, prefix, role, main_func=lambda context, user_id: None):
         self.prefix = prefix
         self.role = role
         self.main_func = main_func
@@ -27,22 +34,22 @@ class ManageRoleConverstion:
         self.ADD_ID = 0
         self.entry_point = f"{prefix}_{role}"
         self.bot_handler = ConversationHandler(
-        entry_points=[
-            CallbackQueryHandler(self.start_conversation, pattern=fr"^{self.entry_point}$")
-        ],
-        states={
-            self.ADD_ID: [
-                MessageHandler(filters.TEXT, self.handle_message),
-            ]
-        },
-        fallbacks=[
-            CallbackQueryHandler(
-                self.cancel, pattern=r"^cancel$"
-            ),
-        ],
-        name=self.entry_point,
-        persistent=True
-    )
+            entry_points=[
+                CallbackQueryHandler(
+                    self.start_conversation, pattern=rf"^{self.entry_point}$"
+                )
+            ],
+            states={
+                self.ADD_ID: [
+                    MessageHandler(filters.TEXT, self.handle_message),
+                ]
+            },
+            fallbacks=[
+                CallbackQueryHandler(self.cancel, pattern=r"^cancel$"),
+            ],
+            name=self.entry_point,
+            persistent=True,
+        )
 
     async def cancel(self, update: Update, context: CallbackContext):
         # Answer callback
@@ -70,7 +77,12 @@ class ManageRoleConverstion:
             return ConversationHandler.END
 
         keyboard = get_keyboard(context, back_button_callback="cancel")
-        await send_keyboard(update, context, keyboard, f"{self.entry_point}_text")
+        await send_message(
+            update,
+            context,
+            keyboard=keyboard,
+            text_string_index=f"{self.entry_point}_text",
+        )
 
         return self.ADD_ID
 
@@ -85,7 +97,7 @@ class ManageRoleConverstion:
         try:
             validation_result = [int(user_id) for user_id in ids]
         except Exception:
-            await send_text(update, context, "id_must_be_a_number")
+            await send_message(update, context, text_string_index="id_must_be_a_number")
             return await self.start_conversation(update, context)
 
         results = []
@@ -104,10 +116,17 @@ class ManageRoleConverstion:
                     logger.error(f"Fail {self.entry_point}")
 
         if not all(results):
-            await send_text(update, context, f"{self.entry_point}_fail")
+            await send_message(
+                update, context, text_string_index=f"{self.entry_point}_fail", replace=False
+            )
             return await self.start_conversation(update, context)
         else:
-            await send_text(update, context, f"{self.entry_point}_success")
+            await send_message(
+                update,
+                context,
+                text_string_index=f"{self.entry_point}_success",
+                replace=False,
+            )
             return await self.cancel(update, context)
 
 
@@ -120,7 +139,7 @@ for h in admin_convo_handlers:
     register_conversation_handler(h.bot_handler)
 
 
-@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
+@button_callback(allowed_roles=DEFAULT_ADMIN_ROLES)
 async def admin_manage_users_button(update, context):
     # menu
     buttons = []
@@ -178,7 +197,12 @@ async def admin_manage_users_button(update, context):
     ]
 
     keyboard = InlineKeyboardMarkup(buttons)
-    return await send_keyboard(update, context, keyboard, "admin_manage_users_header")
+    return await send_message(
+        update,
+        context,
+        keyboard=keyboard,
+        text_string_index="admin_manage_users_header",
+    )
 
 
 @button_callback(allowed_roles=DEFAULT_ADMIN_ROLES)
@@ -186,21 +210,21 @@ async def admin_cancel(update, context):
     return await admin(update, context)
 
 
-@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
+@button_callback(allowed_roles=DEFAULT_ADMIN_ROLES)
 async def open_close_bot(update, context):
     if is_bot_closed(context):
         open_bot_for_users(context)
-        await send_text(update, context, "bot_opened")
+        await send_message(update, context, text_string_index="bot_opened")
         logger.info("Bot has been opened")
     else:
         close_bot_for_users(context)
-        await send_text(update, context, "bot_closed")
+        await send_message(update, context, text_string_index="bot_closed")
         logger.info("Bot has been closed")
 
     return await admin_manage_users_button(update, context)
 
 
-@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
+@button_callback(allowed_roles=DEFAULT_ADMIN_ROLES)
 async def get_users_by_role_menu(update, context):
     prefix = "admin_get_users"
     options = ("admin", "user", "banned")
@@ -229,12 +253,15 @@ async def get_users_by_role_menu(update, context):
             )
         ]
     ]
-    return await send_keyboard(
-        update, context, InlineKeyboardMarkup(buttons), "admin_get_users_header"
+    return await send_message(
+        update,
+        context,
+        keyboard=InlineKeyboardMarkup(buttons),
+        text_string_index="admin_get_users_header",
     )
 
 
-@button_callback(allowed_roles = DEFAULT_ADMIN_ROLES)
+@button_callback(allowed_roles=DEFAULT_ADMIN_ROLES)
 async def admin_get_users(update, context):
     role = await get_info_from_query(update, "admin_get_users")
     return await send_page_with_navigation(
@@ -244,5 +271,5 @@ async def admin_get_users(update, context):
         get_lines_func=lambda context: get_people_layout(context, role),
         lines_to_text_func=lambda l: "\n\n".join(l),
         callback_func=get_users_by_role_menu,
-        clear_cache = True
+        clear_cache=True,
     )

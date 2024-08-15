@@ -36,7 +36,7 @@ By default, in the bot:
 
 - All the text info is preserved in the bot persistance.
 
-- `from easytgbot import send_text, send_keyboard` <- these async functions accept `update`, `context`, and "string_text_key" from the .xlsx file.
+- `from easytgbot import send_message` <- this async function accepts `update`, `context`, and "string_text_key" from the .xlsx file, as well as regular text = text, parse mode = ... etc.
 
 - See `__init__.py` for more features.
 

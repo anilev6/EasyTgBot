@@ -6,8 +6,7 @@ from .decorators import button_callback
 from .utils.context_logic import put_chat_data, get_chat_data
 from .utils.utils import clear_cache
 from .text_handler import text_handler
-from .send import send_keyboard_raw
-
+from .send import send_message
 
 @role_required()
 async def send_page_with_navigation(
@@ -68,8 +67,8 @@ async def send_page_nav(update, context, user_id=None):
     if text_func:
         text = text_func(small_list)
         buttons = get_navigation_buttons(context, page, per_page, lines)
-        return await send_keyboard_raw(
-            update, context, InlineKeyboardMarkup(buttons), text, user_id=user_id
+        return await send_message(
+            update, context, keyboard=InlineKeyboardMarkup(buttons), text=text, user_id=user_id
         )
     # TODO else
 

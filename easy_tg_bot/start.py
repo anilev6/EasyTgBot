@@ -16,7 +16,7 @@ from asyncio import sleep
 
 from .roles import start_permission, role_required, check_role, DEFAULT_ADMIN_ROLES
 from .text_handler import text_handler
-from .send import send_keyboard, send_text
+from .send import send_message
 from .utils.utils import (
     get_info_from_query,
     get_keyboard,
@@ -48,9 +48,14 @@ async def start(update: Update, context: CallbackContext):
         return ConversationHandler.END
 
     # refresh keyboards
-    await send_text(
-        update, context, "welcome_text", reply_markup=ReplyKeyboardRemove()
-    )  # just in case
+    await send_message(
+        update,
+        context,
+        text_string_index="welcome_text",
+        keyboard=ReplyKeyboardRemove(),
+        replace=False
+    )  
+    # just in case
     return await send_lan_choice_keyboard(update, context)
 
 
@@ -58,7 +63,7 @@ async def start(update: Update, context: CallbackContext):
 async def send_lan_choice_keyboard(update: Update, context: CallbackContext):
     languages = text_handler.get_languages(context)
     keyboard = get_keyboard(context, options=languages, prefix="lan")
-    await send_keyboard(update, context, keyboard, "language_choice")
+    await send_message(update, context, keyboard=keyboard, text_string_index="language_choice", new=True) 
     return LANGUAGE_CHOICE
 
 
@@ -88,7 +93,7 @@ async def send_data_consent_keyboard(update: Update, context: CallbackContext):
     keyboard = ReplyKeyboardMarkup(
         buttons, one_time_keyboard=True, resize_keyboard=True
     )
-    await send_keyboard(update, context, keyboard, "data_policy", clear_after = False)
+    await send_message(update, context, keyboard=keyboard, text_string_index="data_policy", replace=False)
     return DATA_CONSENT
 
 
@@ -103,8 +108,8 @@ async def data_consent(update: Update, context: CallbackContext):
 async def not_data_consent(update: Update, context: CallbackContext):
     CONFIRM_BUTTON = text_handler.get_text(context, "start_confirm_button")
     if update.message.text != CONFIRM_BUTTON:
-        await send_text(
-            update, context, "not_confirm_text", reply_markup=ReplyKeyboardRemove()
+        await send_message(
+            update, context, text_string_index="not_confirm_text", keyboard=ReplyKeyboardRemove()
         )
     else:
         logger.error("Error in not_data_consent")
@@ -114,8 +119,8 @@ async def not_data_consent(update: Update, context: CallbackContext):
 @role_required()
 async def end(update: Update, context: CallbackContext, intro_vid=False):
     # remove keyboard
-    await send_text(
-        update, context, "start_confirm_text", reply_markup=ReplyKeyboardRemove()
+    await send_message(
+        update, context, text_string_index="start_confirm_text", keyboard=ReplyKeyboardRemove()
     )
 
     if intro_vid:

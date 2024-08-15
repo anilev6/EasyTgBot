@@ -11,7 +11,7 @@ from .put_file_conv import PutFileConversation
 from .mylogging import logger
 from .utils.context_logic import put_chat_data, get_chat_data
 from .utils.utils import get_keyboard, get_info_from_query, end_conversation
-from .send import send_keyboard
+from .send import send_message
 from .text_handler import text_handler
 from .validate_text_file import DEFAULT_NOT_FOUND_TEXT
 
@@ -80,7 +80,7 @@ class PutVideoConversation(PutFileConversation):
             prefix=self.lan_prefix,
             back_button_callback="end",
         )
-        await send_keyboard(update, context, keyboard, "intro_video_language_choice") # text.xlsx
+        await send_message(update, context, keyboard=keyboard, text_string_index="intro_video_language_choice") # text.xlsx
         return self.INPUT_LAN
 
     async def language_choice(self, update: Update, context: CallbackContext):
@@ -97,7 +97,7 @@ class PutVideoConversation(PutFileConversation):
         info = await get_info_from_query(update, self.lan_prefix)
         put_chat_data(context, self.cached_lan_key, info)
         keyboard = get_keyboard(context, back_button_callback="end") 
-        await send_keyboard(update, context, keyboard, self.put_file_message)
+        await send_message(update, context, keyboard=keyboard, text_string_index=self.put_file_message)
         return self.INPUT_FILE
 
     async def receive_file(self, update: Update, context: CallbackContext):

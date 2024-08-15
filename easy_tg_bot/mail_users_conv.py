@@ -13,7 +13,7 @@ from .mylogging import logger
 from .roles import DEFAULT_ADMIN_ROLES, role_required, get_all_people, get_people, get_people_role_group
 from .decorators import register_conversation_handler
 from .text_handler import text_handler
-from .send import send_keyboard, send_text_raw, send_text
+from .send import send_message
 from .utils.context_logic import get_chat_data, put_chat_data
 from .utils.utils import clear_cache, get_keyboard, get_info_from_query
 from .admin import admin, MAILING_BUTTON
@@ -45,7 +45,7 @@ async def start_conversation(update: Update, context: CallbackContext) -> int:
     query = update.callback_query
     await query.answer()
     keyboard = get_keyboard(context, back_button_callback="mailing_cancel")
-    await send_keyboard(update, context, keyboard, "mailing_input_message")
+    await send_message(update, context, keyboard=keyboard, text_string_index="mailing_input_message")
     return INPUT_MESSAGE
 
 
@@ -83,7 +83,7 @@ async def send_delivery_options(update: Update, context: CallbackContext):
         ]
     )
     keyboard = InlineKeyboardMarkup(buttons)
-    await send_keyboard(update, context, keyboard, "mailing_deliv_choice_message")
+    await send_message(update, context, keyboard=keyboard, text_string_index="mailing_deliv_choice_message")
     return DELIVERY_OPTIONS
 
 
@@ -96,8 +96,8 @@ async def handle_delivery_options_choice(update: Update, context: CallbackContex
         keyboard = get_keyboard(
             context, back_button_callback="mailing_cancel"
         )
-        await send_keyboard(
-            update, context, keyboard, "mailing_input_ids_message"
+        await send_message(
+            update, context, keyboard=keyboard, text_string_index="mailing_input_ids_message"
         )
         return INPUT_IDS
     else:
@@ -123,8 +123,8 @@ async def send_confirm(update: Update, context: CallbackContext):
         ]
     )
     keyboard = InlineKeyboardMarkup(buttons)
-    await send_keyboard(
-        update, context, keyboard, "mailing_confirm_message"
+    await send_message(
+        update, context, keyboard=keyboard, text_string_index="mailing_confirm_message"
     )
     return CONFIRM
 
@@ -137,7 +137,7 @@ async def handle_input_ids(update: Update, context: CallbackContext) -> int:
     except Exception as e:
         msg = f"Error handling ids: {e}"
         logger.error(msg)
-        await send_text_raw(update, context, msg)
+        await send_message(update, context, text=msg, replace=False)
         return await cancel(update, context)
     put_chat_data(context, "current_user_ids", user_ids)
     return await send_confirm(update, context)
@@ -204,7 +204,7 @@ async def send_message_to_users(update: Update, context: CallbackContext, get_cu
 
     else:
         logger.error(f"Error mailing message to all users: {message}")
-        await send_text(update, context, "mailing_wrong_format_message")
+        await send_message(update, context, text_string_index="mailing_wrong_format_message")
         return INPUT_MESSAGE
 
     await send_something_to_users(update, context, get_current_user_group_ids_func, func, **kwargs)
@@ -212,7 +212,7 @@ async def send_message_to_users(update: Update, context: CallbackContext, get_cu
 
 
 async def send_something_to_users(update, context, get_current_user_group_ids_func, function, *args, **kwargs):
-    await send_text(update, context, "admin_mailing_in_progress")
+    await send_message(update, context, text_string_index="admin_mailing_in_progress", replace=False)
     for user_id in get_current_user_group_ids_func(context):
         await asyncio.sleep(randint(1, 5))  # sleep to repsect api rates
         try:
@@ -220,8 +220,11 @@ async def send_something_to_users(update, context, get_current_user_group_ids_fu
         except Exception as e:
             msg = f"{user_id}: {str(e)}"
             logger.error("Error in mailing - "+ msg)
-            await send_text_raw(update, context, text_handler.get_text(context, "admin_mailing_error") +"\n"+ msg)
-    return await send_text(update, context, "admin_mailing_done")
+            full_msg = (
+                text_handler.get_text(context, "admin_mailing_error") + "\n" + msg
+            )
+            await send_message(update, context,text=full_msg, replace=False)
+    return await send_message(update, context, text_string_index="admin_mailing_done", replace=False)
 
 
 # Object

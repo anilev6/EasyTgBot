@@ -4,7 +4,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 
 from .context_logic import get_user_data, clear_cache
 from ..text_handler import text_handler
-from ..send import mute_last_active_keyboard, send_text
+from ..send import send_message
 from ..mylogging import logger, get_time
 
 
@@ -116,18 +116,16 @@ async def end_conversation(
     context: CallbackContext,
     clean_up=False,
     last_message_text_string_index=None,
-    **kwargs,
 ):
 
     if last_message_text_string_index is not None:
-        await send_text(
-            update, context, text_string_index=last_message_text_string_index, **kwargs
+        await send_message(
+            update, context, text_string_index=last_message_text_string_index, replace=False
         )
 
     if clean_up:
         clear_cache(context)
 
-    await mute_last_active_keyboard(update, context)
     return ConversationHandler.END
 
 

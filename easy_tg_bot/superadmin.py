@@ -3,7 +3,7 @@ import json
 import io
 from random import randint
 
-from .send import send_text_raw, send_text
+from .send import send_message
 from .roles import get_all_people, get_people
 from .decorators import command
 from .mylogging import get_time
@@ -23,16 +23,16 @@ INFO_LINES = [
 # Admin utils
 async def send_to_superadmin(update, context, info):
     for user_id in get_people(context, "superadmin"):
-        await send_text(update, context, info, user_id)
+        await send_message(update, context, text=info, user_id=user_id, replace=False)
 
 
 async def send_notification(update, context, notification_txt_id):
     all_users = get_all_people(context)
-    await send_text_raw(update, context, "Mailing users...")
+    await send_message(update, context, text="Mailing users...", replace=False)
     for user_id in all_users:
         await asyncio.sleep(randint(1, 3))
-        await send_text(update, context, notification_txt_id, user_id)
-    await send_text_raw(update, context, "Mailing users done.")
+        await send_message(update, context, text_string_index=notification_txt_id, user_id=user_id, replace=False)
+    await send_message(update, context, text="Mailing users done.", replace=False)
 
 
 @command(allowed_roles=("superadmin",))
@@ -41,7 +41,7 @@ async def superadmin(u, c):
         "🍑  SUPERADMIN MENU",
     ]
     lines += reversed(INFO_LINES)
-    return await send_text_raw(u, c, "\n".join(lines))
+    return await send_message(u, c, text = "\n".join(lines), replace=False)
 
 
 @command(allowed_roles=("superadmin",))

@@ -5,7 +5,7 @@ from .roles import DEFAULT_ADMIN_ROLES
 from .decorators import command
 
 from .text_handler import text_handler
-from .send import send_keyboard
+from .send import send_message
 from .utils.utils import clear_cache
 
 
@@ -43,4 +43,4 @@ async def admin(update: Update, context: CallbackContext):
         for option_name, option in options.items()
     ]
     keyboard = InlineKeyboardMarkup(buttons)
-    return await send_keyboard(update, context, keyboard, ADMIN_MAIN_MENU_HEADER)
+    return await send_message(update, context, keyboard=keyboard, text_string_index=ADMIN_MAIN_MENU_HEADER, new=True)

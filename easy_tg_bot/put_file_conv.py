@@ -9,7 +9,7 @@ from telegram.ext import (
 
 from .mylogging import logger
 from .utils.utils import get_keyboard, end_conversation
-from .send import send_keyboard
+from .send import send_message
 
 from .file_handler import FileHandler
 from .roles import check_role, DEFAULT_ADMIN_ROLES
@@ -90,7 +90,7 @@ class PutFileConversation:
             return ConversationHandler.END
 
         keyboard = get_keyboard(context, back_button_callback="end") 
-        await send_keyboard(update, context, keyboard, self.put_file_message)
+        await send_message(update, context, keyboard=keyboard, text_string_index=self.put_file_message)
 
         file_path = self.start_conversation_get_file_path(context)
         await self.file_handler.send_file_general(update, context, file_path)
@@ -98,7 +98,7 @@ class PutFileConversation:
         return self.INPUT_FILE
 
     async def file_error_response(
-        self, update: Update, context: CallbackContext, file_path, message_text_id
+        self, update: Update, context: CallbackContext, file_path, text_string_index
     ):
         if not self.restrict_function(update, context):
             return ConversationHandler.END 
@@ -108,7 +108,9 @@ class PutFileConversation:
             context,
             back_button_callback="end", 
         )
-        await send_keyboard(update, context, keyboard, message_text_id)
+        await send_message(
+            update, context, keyboard=keyboard, text_string_index=text_string_index
+        )
         return self.INPUT_FILE
 
     async def receive_file(self, update: Update, context: CallbackContext):
