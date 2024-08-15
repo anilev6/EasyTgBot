@@ -36,10 +36,10 @@ __version__ = "0.1.5"
 # for adding the handlers on init automatically
 from .mail_users_conv import message_mailing_conv_handler
 from . import superadmin # INFO_LINES for superadmin menu
-# from . import error
+from . import error
 __version__ = "0.1.9"
 from .send import send_message
-__version__ = "0.2.0"
+__version__ = "0.2.0" # bug fix
 # TODO
 # - Forget user /forget_me; Delete user;
 # - Hung convo bug - test
