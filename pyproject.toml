@@ -14,6 +14,9 @@ pandas = "^2.2.2"
 openpyxl = "^3.1.5"
 click = "^8.1.7"
 pyyaml = "^6.0.2"
+fastapi = "^0.112.1"
+uvicorn = "^0.30.6"
+pyngrok = "^7.2.0"
 
 [tool.poetry.scripts]
 easy-tg-bot = "easy_tg_bot.cli:cli"

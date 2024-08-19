@@ -5,6 +5,7 @@ from .mylogging import logger
 from .utils.init_templates import initialize_file_from_draft
 from . import settings
 from .utils.run_docker_polling import run_container, create_yaml_file
+from .app import run_webhook_app
 
 
 # Main
@@ -60,6 +61,15 @@ def run(docker):
 @cli.command()
 def set_webhook(token, url):
     os.system(f"curl -X POST https://api.telegram.org/bot{token}/setWebhook?url={url}")
+
+
+@cli.command()
+def webhook():
+    # TODO Docker
+    try:
+        run_webhook_app()
+    except Exception as e:
+        logger.error(f"Error in webhook:\n{e}")
 
 
 # Developer mode

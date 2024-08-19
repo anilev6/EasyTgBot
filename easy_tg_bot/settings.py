@@ -25,9 +25,16 @@ TG_BOT_TOKEN = get_secret_by_name("TG_BOT_TOKEN")
 
 # Optional
 TG_TIME_ZONE = get_secret_by_name("TG_TIME_ZONE", "")
-TG_WEBHOOK_URL = get_secret_by_name("TG_WEBHOOK_URL", "")
+
+# File storage/mount
 TG_FILE_FOLDER_PATH = get_secret_by_name("TG_FILE_FOLDER_PATH", "")
 
+# Webhook
+TG_WEBHOOK_URL = get_secret_by_name("TG_WEBHOOK_URL", "")
+TG_WEBHOOK_HOST = get_secret_by_name("TG_WEBHOOK_HOST", "0.0.0.0")
+TG_WEBHOOK_PORT = get_secret_by_name("TG_WEBHOOK_PORT", 8000)
+
+# Roles
 DEFAULT_ROLES_DICT = {}
 
 # Possible values: superadmin, admin, user, banned

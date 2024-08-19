@@ -6,6 +6,23 @@ import os
 from telegram.ext import Application, ApplicationBuilder, PicklePersistence
 from telegram import Update
 
+from fastapi import FastAPI, Request, Response
+from http import HTTPStatus
+import uvicorn
+from pyngrok import ngrok
+
+# Suppress uvicorn logger
+import logging
+uvicorn_logger = logging.getLogger("uvicorn")
+uvicorn_logger.setLevel(logging.ERROR)
+
+# Suppress pyngrok and fastapi loggers
+pyngrok_logger = logging.getLogger("pyngrok")
+pyngrok_logger.setLevel(logging.ERROR)
+
+fastapi_logger = logging.getLogger("fastapi")
+fastapi_logger.setLevel(logging.ERROR)
+
 from .utils.init_templates import initialize_file_from_draft
 from .mylogging import time_log_decorator, logger
 from . import settings
@@ -73,12 +90,13 @@ def telegram_bot_polling(debug = False):
         application.run_polling()
 
 
+# AWS
 @time_log_decorator
 async def process_update(event, context):
     # Add handlers; needs to be called at the end for the decorators reason
     add_handlers(application)
     try:
-        await application.initialize()
+        await application.initialize() # .start() ?
         await application.process_update(
             Update.de_json(json.loads(event["body"]), application.bot)
         )
@@ -92,3 +110,67 @@ async def process_update(event, context):
 
 def lambda_handler(event, context):
     return asyncio.get_event_loop().run_until_complete(process_update(event, context))
+
+
+# Vultr and others
+def ptb_for_webhook():
+    persistence = PicklePersistence(
+        filepath=f"{settings.TG_FILE_FOLDER_PATH}{settings.TG_BOT_NAME}Persistence",
+        on_flush=True,
+    )
+    ptb = (
+        ApplicationBuilder()
+        .application_class(MyApplication)
+        .updater(None)
+        .token(settings.TG_BOT_TOKEN)
+        .persistence(persistence)
+        .read_timeout(7)
+        .get_updates_read_timeout(42)
+        .build()
+    )
+    add_handlers(ptb)
+    return ptb
+
+def app_for_webhook(url):
+    root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
+    initialize_file_from_draft("text.xlsx", root_dir)
+
+    @contextlib.asynccontextmanager
+    async def lifespan(app: FastAPI):
+        await app.ptb.bot.setWebhook(url)
+        async with app.ptb as ptb:
+            await ptb.start()
+            yield
+            await ptb.stop()
+
+    # Initialize FastAPI app (similar to Flask)
+    app = FastAPI(lifespan=lifespan)
+    # TODO Limiter
+    app.ptb = ptb_for_webhook()
+
+    @app.post("/")
+    async def process_update(request: Request):
+        req = await request.json()
+        update = Update.de_json(req, app.ptb.bot)
+        try:
+            await app.ptb.process_update(update)
+            return Response(status_code=HTTPStatus.OK)
+        except Exception as e:
+            logger.error(f"Error in process_update: {e}")
+            return Response(status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+    return app
+
+def run_webhook_app():
+    host = settings.TG_WEBHOOK_HOST
+    port = settings.TG_WEBHOOK_PORT
+    token = settings.TG_BOT_TOKEN
+    url = settings.TG_WEBHOOK_URL
+    if not url:
+        logger.info("No url found, setting up ngrok...")
+        url = ngrok.connect(port).public_url
+    if not all([host, port, token]):
+        raise ValueError("Please fill all the necessary settings in settings.py")
+    if not url:
+        raise ValueError("Please check your ngrok connection")
+    app = app_for_webhook(url)
+    uvicorn.run(app, host=host, port=port, access_log=False)

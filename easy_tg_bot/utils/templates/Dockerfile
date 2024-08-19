@@ -17,5 +17,8 @@ RUN poetry config virtualenvs.create false && \
 # Copy the rest of the application's code
 COPY . .
 
+# (Webhook) Expose the port the app runs on
+EXPOSE 8000
+
 # Run application when the container launches
 CMD ["python", "./main.py"]
