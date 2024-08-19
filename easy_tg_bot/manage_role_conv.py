@@ -97,7 +97,7 @@ class ManageRoleConverstion:
         try:
             validation_result = [int(user_id) for user_id in ids]
         except Exception:
-            await send_message(update, context, text_string_index="id_must_be_a_number")
+            await send_message(update, context, text_string_index="id_must_be_a_number", replace=False)
             return await self.start_conversation(update, context)
 
         results = []
@@ -214,11 +214,11 @@ async def admin_cancel(update, context):
 async def open_close_bot(update, context):
     if is_bot_closed(context):
         open_bot_for_users(context)
-        await send_message(update, context, text_string_index="bot_opened")
+        await send_message(update, context, text_string_index="bot_opened", replace=False)
         logger.info("Bot has been opened")
     else:
         close_bot_for_users(context)
-        await send_message(update, context, text_string_index="bot_closed")
+        await send_message(update, context, text_string_index="bot_closed", replace=False)
         logger.info("Bot has been closed")
 
     return await admin_manage_users_button(update, context)

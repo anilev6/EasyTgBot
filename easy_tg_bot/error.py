@@ -8,16 +8,22 @@ from . import app
 # Whithin Telegram
 async def error(update, context, cache={}, max_cache_size = 30, cooldown_minutes = 30) -> None:
     error_msg = "General error handler - "
-    # For callback queries
-    if update.callback_query:
-        error_msg += f"a callback error occurred: {context.error}"
-        # await update.callback_query.answer(msg, show_alert=True)
-    # For regular messages
-    elif update.message:
-        error_msg += f"a message error occurred: {context.error}"
-        # await update.message.reply_text(msg)
-    else:
-        error_msg += f"Update\n'{update}'\n...caused error\n'{context.error}'"
+    try:
+        # No internet during polling or a webhook issue
+        if not update:
+            error_msg += f"no Update found"
+        # For callback queries
+        elif update.callback_query:
+            error_msg += f"a callback error occurred: {context.error}"
+            # await update.callback_query.answer(msg, show_alert=True)
+        # For regular messages
+        elif update.message:
+            error_msg += f"a message error occurred: {context.error}"
+            # await update.message.reply_text(msg)
+        else:
+            error_msg += f"Update\n'{update}'\n...caused error\n'{context.error}'"
+    except Exception as e:
+        error_msg += f"error in the bot: {e}"
 
     logger.error(error_msg)
 

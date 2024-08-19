@@ -204,7 +204,7 @@ async def send_message_to_users(update: Update, context: CallbackContext, get_cu
 
     else:
         logger.error(f"Error mailing message to all users: {message}")
-        await send_message(update, context, text_string_index="mailing_wrong_format_message")
+        await send_message(update, context, text_string_index="mailing_wrong_format_message", replace=False)
         return INPUT_MESSAGE
 
     await send_something_to_users(update, context, get_current_user_group_ids_func, func, **kwargs)
@@ -212,7 +212,7 @@ async def send_message_to_users(update: Update, context: CallbackContext, get_cu
 
 
 async def send_something_to_users(update, context, get_current_user_group_ids_func, function, *args, **kwargs):
-    await send_message(update, context, text_string_index="admin_mailing_in_progress", replace=False)
+    await send_message(update, context, text_string_index="admin_mailing_in_progress")
     for user_id in get_current_user_group_ids_func(context):
         await asyncio.sleep(randint(1, 5))  # sleep to repsect api rates
         try:
@@ -224,7 +224,7 @@ async def send_something_to_users(update, context, get_current_user_group_ids_fu
                 text_handler.get_text(context, "admin_mailing_error") + "\n" + msg
             )
             await send_message(update, context,text=full_msg, replace=False)
-    return await send_message(update, context, text_string_index="admin_mailing_done", replace=False)
+    return await send_message(update, context, text_string_index="admin_mailing_done")
 
 
 # Object

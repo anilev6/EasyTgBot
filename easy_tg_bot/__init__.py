@@ -19,9 +19,22 @@ from .start import start_conv_handler
 from .put_file_conv import PutFileConversation
 from .put_intro_video_conv import PutVideoConversation
 __version__ = "0.1.1"
-from .utils.context_logic import get_chat_data, put_chat_data, get_user_data, put_user_data, clear_cache
+from .utils.context_logic import (
+    get_chat_data,
+    put_chat_data,
+    get_user_data,
+    put_user_data,
+    clear_cache,
+)
 from .send import send_video_from_file_id
-from .roles import role_required, check_role, DEFAULT_ADMIN_ROLES, DEFAULT_ALLOWED_ROLES, get_people_layout, get_people_role_group
+from .roles import (
+    role_required,
+    check_role,
+    DEFAULT_ADMIN_ROLES,
+    DEFAULT_ALLOWED_ROLES,
+    get_people_layout,
+    get_people_role_group,
+)
 from .send_with_navigation import send_page_with_navigation, send_page_nav
 # for adding the handlers on init automatically
 from .manage_role_conv import ManageRoleConverstion
@@ -35,11 +48,12 @@ from .settings import get_secret_by_name, default_roles
 __version__ = "0.1.5"
 # for adding the handlers on init automatically
 from .mail_users_conv import message_mailing_conv_handler
-from . import superadmin # INFO_LINES for superadmin menu
+from . import superadmin  # INFO_LINES for superadmin menu
 from . import error
 __version__ = "0.1.9"
 from .send import send_message
-__version__ = "0.2.0" # bug fix
+__version__ = "0.2.1"  # bug fix
+
 # TODO
 # - Forget user /forget_me; Delete user;
 # - Hung convo bug - test
@@ -50,3 +64,5 @@ __version__ = "0.2.0" # bug fix
 # - Bug fix: None.log occasionally on run
 # - /restart_me
 # - optional number share
+# - cache errors; cache messages; 
+# - limiter;
