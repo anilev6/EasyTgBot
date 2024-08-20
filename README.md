@@ -83,8 +83,4 @@ Ctrl+C to exit.
 
 ## # TODO
 
-- `/admin` -> *mailing service*
-
-- `/superadmin` - list of superadmin commands: `/get_db`, `/bot_down`, etc
-
 - Add more features description to `README` from `__init__.py`
