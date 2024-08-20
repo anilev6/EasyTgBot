@@ -46,6 +46,8 @@ jobs:
         TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
         TG_MY_ID: ${{ secrets.TG_MY_ID }}
         TG_FILE_FOLDER_PATH: ${{ secrets.TG_FILE_FOLDER_PATH }}
+        APP_NAME: ${{ secrets.APP_NAME }}
+        PORT: ${{ secrets.PORT }}
       
       run: |
         # TODO use github deployment keys
@@ -62,8 +64,8 @@ jobs:
           docker pull sjc.vultrcr.com/$CONTAINER_REGISTRY_NAME/$IMAGE_TAG
           
           # Unlock on the second commit
-          # docker stop myapp || true
-          # docker rm myapp || true
+          # docker stop $APP_NAME || true
+          # docker rm $APP_NAME || true
 
           # .env for running the container
           mkdir -p tmp
@@ -71,16 +73,15 @@ jobs:
           echo "TG_BOT_TOKEN=$TG_BOT_TOKEN" >> /$VULTR_SERVER_USER/tmp/env.list
           echo "TG_MY_ID=$TG_MY_ID" >> /$VULTR_SERVER_USER/tmp/env.list
           echo "TG_FILE_FOLDER_PATH=$TG_FILE_FOLDER_PATH" >> /$VULTR_SERVER_USER/tmp/env.list
-          echo "TG_WEBHOOK_URL=http://$VULTR_SERVER_IP:8000" >> /$VULTR_SERVER_USER/tmp/env.list
+          echo "TG_WEBHOOK_URL=http://$VULTR_SERVER_IP:$PORT" >> /$VULTR_SERVER_USER/tmp/env.list
 
           # Volumes configuration
           mkdir -p $TG_BOT_NAME
-          mkdir -p $TG_BOT_NAME/$TG_FILE_FOLDER_PATH
           
           # Run
-          docker run -d --name myapp \
-          -p 8000:8000 \
-          -v /$VULTR_SERVER_USER/$TG_BOT_NAME/$TG_FILE_FOLDER_PATH:/usr/src/app/$TG_FILE_FOLDER_PATH \
+          docker run -d --name $APP_NAME \
+          -p $PORT:8000\
+          -v /$VULTR_SERVER_USER/$TG_BOT_NAME:/usr/src/app/$TG_FILE_FOLDER_PATH \
           --env-file /$VULTR_SERVER_USER/tmp/env.list \
           sjc.vultrcr.com/$CONTAINER_REGISTRY_NAME/$IMAGE_TAG
 
