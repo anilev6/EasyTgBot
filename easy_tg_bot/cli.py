@@ -5,7 +5,6 @@ from .mylogging import logger
 from .utils.init_templates import initialize_file_from_draft, create_vultr_deploy_yml_from_draft
 from . import settings
 from .utils.run_docker_polling import run_container, create_yaml_file
-from .utils.run_docker_webhook import build_and_run
 from .app import run_webhook_app
 
 
@@ -64,17 +63,8 @@ def set_webhook(token, url):
     os.system(f"curl -X POST https://api.telegram.org/bot{token}/setWebhook?url={url}")
 
 
-@click.option(
-    "--docker", is_flag=True, help="Deploy as a Docker container; env vars from .env"
-)
 @cli.command()
-def webhook(docker):
-    if docker:
-        root_dir = os.getcwd()
-        initialize_file_from_draft("Dockerfile", root_dir)
-        initialize_file_from_draft(".dockerignore", root_dir)
-        build_and_run()
-        return
+def webhook():
     try:
         run_webhook_app()
     except Exception as e:

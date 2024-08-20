@@ -52,10 +52,12 @@ from . import superadmin  # INFO_LINES for superadmin menu
 from . import error
 __version__ = "0.1.9"
 from .send import send_message
-__version__ = "0.2.1"  # bug fix
+__version__ = "0.2.1" 
 from .app import run_webhook_app
 # New command in cli for deployment in vultr! easy-tg-bot vultr
 # requires a vultr server with docker installed and vultr container registry
+__version__ = "0.2.2"  # bug fix
+# easy-tg-bot webhook
 # TODO
 # - limiter;
 # - Forget user /forget_me; Delete user;
