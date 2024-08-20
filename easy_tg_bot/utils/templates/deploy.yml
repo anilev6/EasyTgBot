@@ -1,0 +1,95 @@
+name: Deploy to Vultr
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker Hub
+      env:
+        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        CONTAINER_REGISTRY_NAME: ${{ secrets.CONTAINER_REGISTRY_NAME }}
+        IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
+      # TODO remove the safety warning on docker login
+      run: echo "$DOCKER_HUB_PASSWORD" | docker login https://sjc.vultrcr.com/$CONTAINER_REGISTRY_NAME -u "$DOCKER_HUB_USERNAME" --password-stdin
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ secrets.IMAGE_TAG }} . --no-cache
+        docker tag ${{ secrets.IMAGE_TAG }} sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.IMAGE_TAG }}
+        docker push sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.IMAGE_TAG }}
+
+    - name: Deploy to Vultr
+      env:
+        VULTR_SERVER_IP: ${{ secrets.VULTR_SERVER_IP }}
+        VULTR_SERVER_USER: ${{ secrets.VULTR_SERVER_USER }}
+        VULTR_SERVER_SSH_KEY: ${{ secrets.VULTR_SERVER_SSH_KEY }}
+
+        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        CONTAINER_REGISTRY_NAME: ${{ secrets.CONTAINER_REGISTRY_NAME }}
+        IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
+        
+        TG_BOT_NAME: ${{ secrets.TG_BOT_NAME }}
+        TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+        TG_MY_ID: ${{ secrets.TG_MY_ID }}
+        TG_FILE_FOLDER_PATH: ${{ secrets.TG_FILE_FOLDER_PATH }}
+      
+      run: |
+        # TODO use github deployment keys
+        echo "$VULTR_SERVER_SSH_KEY" > /tmp/vultr_key
+        
+        # Ensure the key has the correct permissions
+        chmod 600 /tmp/vultr_key
+        
+        # Connect to the server
+        ssh -o StrictHostKeyChecking=no -i /tmp/vultr_key $VULTR_SERVER_USER@$VULTR_SERVER_IP << 'EOF'
+
+          # Docker
+          echo "$DOCKER_HUB_PASSWORD" | docker login https://sjc.vultrcr.com/$CONTAINER_REGISTRY_NAME -u "$DOCKER_HUB_USERNAME" --password-stdin
+          docker pull sjc.vultrcr.com/$CONTAINER_REGISTRY_NAME/$IMAGE_TAG
+          
+          # Unlock on the second commit
+          # docker stop myapp || true
+          # docker rm myapp || true
+
+          # .env for running the container
+          mkdir -p tmp
+          echo "TG_BOT_NAME=$TG_BOT_NAME" > /$VULTR_SERVER_USER/tmp/env.list
+          echo "TG_BOT_TOKEN=$TG_BOT_TOKEN" >> /$VULTR_SERVER_USER/tmp/env.list
+          echo "TG_MY_ID=$TG_MY_ID" >> /$VULTR_SERVER_USER/tmp/env.list
+          echo "TG_FILE_FOLDER_PATH=$TG_FILE_FOLDER_PATH" >> /$VULTR_SERVER_USER/tmp/env.list
+          echo "TG_WEBHOOK_URL=http://$VULTR_SERVER_IP:8000" >> /$VULTR_SERVER_USER/tmp/env.list
+
+          # Volumes configuration
+          mkdir -p $TG_BOT_NAME
+          mkdir -p $TG_BOT_NAME/$TG_FILE_FOLDER_PATH
+          
+          # Run
+          docker run -d --name myapp \
+          -p 8000:8000 \
+          -v /$VULTR_SERVER_USER/$TG_BOT_NAME/$TG_FILE_FOLDER_PATH:/usr/src/app/$TG_FILE_FOLDER_PATH \
+          --env-file /$VULTR_SERVER_USER/tmp/env.list \
+          sjc.vultrcr.com/$CONTAINER_REGISTRY_NAME/$IMAGE_TAG
+
+          # Clean up
+          rm -f /tmp/env.list
+          docker system prune -af
+        EOF
+
+    - name: Clean up temporary files
+      run: |
+        rm -f /tmp/vultr_key
+

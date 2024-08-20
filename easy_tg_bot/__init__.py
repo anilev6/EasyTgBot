@@ -54,6 +54,8 @@ __version__ = "0.1.9"
 from .send import send_message
 __version__ = "0.2.1"  # bug fix
 from .app import run_webhook_app
+# New command in cli for deployment in vultr! easy-tg-bot vultr
+# requires a vultr server with docker installed and vultr container registry
 # TODO
 # - limiter;
 # - Forget user /forget_me; Delete user;

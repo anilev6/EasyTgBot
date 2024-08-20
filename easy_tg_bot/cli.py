@@ -2,7 +2,7 @@ import click
 import os
 
 from .mylogging import logger
-from .utils.init_templates import initialize_file_from_draft
+from .utils.init_templates import initialize_file_from_draft, create_vultr_deploy_yml_from_draft
 from . import settings
 from .utils.run_docker_polling import run_container, create_yaml_file
 from .utils.run_docker_webhook import build_and_run
@@ -79,6 +79,15 @@ def webhook(docker):
         run_webhook_app()
     except Exception as e:
         logger.error(f"Error in webhook:\n{e}")
+
+
+@cli.command()
+def vultr():
+    """Deploys to Vultr using Actions."""
+    root_dir = os.getcwd()
+    initialize_file_from_draft("Dockerfile", root_dir)
+    initialize_file_from_draft(".dockerignore", root_dir)
+    create_vultr_deploy_yml_from_draft()
 
 
 # Developer mode
