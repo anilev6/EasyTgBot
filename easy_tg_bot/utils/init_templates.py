@@ -34,20 +34,20 @@ def initialize_file_from_draft(file_name, root_dir):
 
 def create_vultr_deploy_yml_from_draft():
     github_actions_folder = ".github/workflows"
+    github_actions_folder_path = os.path.join(
+        os.getcwd() , github_actions_folder
+    )
     if not os.path.exists(github_actions_folder_path):
         os.makedirs(github_actions_folder_path)
 
-    github_actions_folder_path = os.path.join(
-        os.path.dirname(__file__), github_actions_folder
-    )
     deploy_yml_draft = "deploy.yml"
+    deploy_yml_output_path = os.path.join(github_actions_folder_path, deploy_yml_draft)
+    if os.path.exists(deploy_yml_output_path):
+        return
+    
     deploy_yml_path = os.path.join(DRAFTS_FOLDER_PATH, deploy_yml_draft)
     if not os.path.exists(deploy_yml_path):
         print(f"{deploy_yml_path} does not exist.")
-        return
-
-    deploy_yml_output_path = os.path.join(github_actions_folder_path, deploy_yml_draft)
-    if os.path.exists(deploy_yml_output_path):
         return
 
     shutil.copy(deploy_yml_path, deploy_yml_output_path)
