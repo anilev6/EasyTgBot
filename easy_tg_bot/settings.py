@@ -34,7 +34,7 @@ TG_WEBHOOK_URL = get_secret_by_name(
     "TG_WEBHOOK_URL", ""
 )
 TG_WEBHOOK_HOST = get_secret_by_name("TG_WEBHOOK_HOST", "0.0.0.0")
-TG_WEBHOOK_PORT = get_secret_by_name("TG_WEBHOOK_PORT", 8000)
+TG_WEBHOOK_PORT = int(get_secret_by_name("TG_WEBHOOK_PORT", "80"))
 
 # Roles
 DEFAULT_ROLES_DICT = {}
