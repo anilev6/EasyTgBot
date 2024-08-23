@@ -14,7 +14,7 @@ class FileHandler:
         validate_function=lambda file_path: (200, "validate_200"),     
     ):
         self.prefix = prefix
-        self.default_path = settings.TG_FILE_FOLDER_PATH + f"{prefix}.xlsx"
+        self.default_path = f"{prefix}.xlsx"
         self.file_key = f"{prefix}_file"
         self.key_to_iter = f"{prefix}_iterable"
         # To call inside the class; to call outside, put extra arg in
@@ -25,28 +25,32 @@ class FileHandler:
     async def download_file(self, update: Update):
         file_extension = update.message.effective_attachment.file_name.split(".")[-1]
         file_name = self.prefix + "_from_" + get_time(string=True)
-        file_path = settings.TG_FILE_FOLDER_PATH + f"{file_name}.{file_extension}"
+        file_path = f"{file_name}.{file_extension}"
         new_file = await update.message.effective_attachment.get_file()
-        await new_file.download_to_drive(file_path)
+        await new_file.download_to_drive(settings.TG_FILE_FOLDER_PATH + file_path)
         return file_path
 
     async def delete_file(self, file_path):
         if file_path == self.default_path:
             return  # deleting of the example file does nothing
         try:
-            await aiofiles.os.remove(file_path)
+            await aiofiles.os.remove(settings.TG_FILE_FOLDER_PATH + file_path)
             logger.info(f"Successfully deleted file: {file_path}")
         except OSError as e:
-            logger.error(f"Error deleting file {file_path}: {e.strerror}")
+            logger.error(
+                f"Error deleting file {file_path}: {e.strerror}"
+            )
 
     # Send file
     async def send_file_general(
         self, update: Update, context: CallbackContext, file_path
     ):  
         try:
-            with open(file_path, "rb") as file:
+            with open(settings.TG_FILE_FOLDER_PATH + file_path, "rb") as file:
                 message = await context.bot.send_document(
-                    chat_id=update.effective_chat.id, document=file, filename=file_path
+                    chat_id=update.effective_chat.id,
+                    document=file,
+                    filename=file_path,
                 )
             if update:
                 query = update.callback_query
@@ -77,7 +81,9 @@ class FileHandler:
     def put_file_iterable(self, context: CallbackContext):
         """use only after refreshing path"""
         path = self.get_path(context)
-        context.bot_data[self.key_to_iter] = self.read_file(path)
+        context.bot_data[self.key_to_iter] = self.read_file(
+            settings.TG_FILE_FOLDER_PATH + path
+        )
 
     def get_file_iterable(self, context: CallbackContext):
         if not context.bot_data.get(self.key_to_iter):

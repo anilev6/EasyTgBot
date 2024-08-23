@@ -22,9 +22,9 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build -t "${{ secrets.IMAGE_TAG }}" . --no-cache
-        docker tag "${{ secrets.IMAGE_TAG }}" "sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.IMAGE_TAG }}"
-        docker push "sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.IMAGE_TAG }}"
+        docker build -t ${{ secrets.APP_NAME }}:${{ secrets.IMAGE_TAG }} . --no-cache
+        docker tag ${{ secrets.APP_NAME }}:${{ secrets.IMAGE_TAG }} sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.APP_NAME }}:${{ secrets.IMAGE_TAG }}
+        docker push sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.APP_NAME }}:${{ secrets.IMAGE_TAG }}
 
     - name: Deploy to Vultr
       run: |
@@ -34,36 +34,30 @@ jobs:
         chmod 600 /tmp/vultr_key
         
         # Connect to the server
-        ssh -o StrictHostKeyChecking=no -i /tmp/vultr_key "${{ secrets.VULTR_SERVER_USER }}@${{ secrets.VULTR_SERVER_IP }}" << 'EOF'
-          
-          # Docker
-          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login "https://sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}" -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-          docker pull "sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.IMAGE_TAG }}"
-          
-          # .env for running the container
-          mkdir -p tmp
-          echo "TG_BOT_NAME=${{ secrets.TG_BOT_NAME }}" > "/${{ secrets.VULTR_SERVER_USER }}/tmp/env.list"
-          echo "TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}" >> "/${{ secrets.VULTR_SERVER_USER }}/tmp/env.list"
-          echo "TG_MY_ID=${{ secrets.TG_MY_ID }}" >> "/${{ secrets.VULTR_SERVER_USER }}/tmp/env.list"
-          echo "TG_FILE_FOLDER_PATH=${{ secrets.TG_FILE_FOLDER_PATH }}" >> "/${{ secrets.VULTR_SERVER_USER }}/tmp/env.list"
-          echo "TG_WEBHOOK_URL=http://${{ secrets.VULTR_SERVER_IP }}:${{ secrets.PORT }}" >> "/${{ secrets.VULTR_SERVER_USER }}/tmp/env.list"
+        ssh -o StrictHostKeyChecking=no -i /tmp/vultr_key ${{ secrets.VULTR_SERVER_USER }}@${{ secrets.VULTR_SERVER_IP }} << 'EOF'
 
           # Volumes configuration
-          mkdir -p "${{ secrets.TG_BOT_NAME }}"
+          mkdir -p ${{ secrets.TG_BOT_NAME }}
+          mkdir -p ${{ secrets.TG_BOT_NAME }}/${{ secrets.TG_FILE_FOLDER_PATH }}
           
-          # Unlock on the second commit
-          docker stop "${{ secrets.APP_NAME }}" || true
-          docker system prune -af
+          # Clear previous containers
+          docker stop ${{ secrets.APP_NAME }} || true
+   
+          # Run the container
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login https://sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }} -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          
+          docker pull sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.APP_NAME }}:${{ secrets.IMAGE_TAG }}
+          
+          docker run -d --name ${{ secrets.APP_NAME }} \
+          -v /${{ secrets.VULTR_SERVER_USER }}/${{ secrets.TG_BOT_NAME }}/${{ secrets.TG_FILE_FOLDER_PATH }}:/usr/src/app/${{ secrets.TG_FILE_FOLDER_PATH }} \
+          -e TG_BOT_NAME=${{ secrets.TG_BOT_NAME }} \
+          -e TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }} \
+          -e TG_MY_ID=${{ secrets.TG_MY_ID }} \
+          -e TG_FILE_FOLDER_PATH=${{ secrets.TG_FILE_FOLDER_PATH }} \
+          sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.APP_NAME }}:${{ secrets.IMAGE_TAG }}
 
-          # Run
-          docker run -d --name "${{ secrets.APP_NAME }}" \
-          -p "${{ secrets.PORT }}:80"\
-          -v "/${{ secrets.VULTR_SERVER_USER }}/${{ secrets.TG_BOT_NAME }}":"/usr/src/app/${{ secrets.TG_FILE_FOLDER_PATH }}" \
-          --env-file "/${{ secrets.VULTR_SERVER_USER }}/tmp/env.list" \
-          "sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.IMAGE_TAG }}"
-
-          # Clean up
-          rm -f /tmp/env.list
+          # Clear unused
+          docker system prune -af 
         EOF
 
     - name: Clean up temporary files
