@@ -21,6 +21,7 @@ from .text_handler import text_handler
 
 # connect the handlers
 from .decorators import register_conversation_handler
+from . import settings
 
 # annoying warning
 from warnings import filterwarnings
@@ -119,7 +120,9 @@ class PutFileConversation:
 
         try:
             file_path = await self.file_handler.download_file(update)
-            result = self.file_handler.validate_file(file_path)
+            result = self.file_handler.validate_file(
+                settings.TG_FILE_FOLDER_PATH + file_path
+            )
             code, message_text_id = (
                 result[0],
                 result[1],
