@@ -77,6 +77,7 @@ def vultr():
     root_dir = os.getcwd()
     initialize_file_from_draft("Dockerfile", root_dir)
     initialize_file_from_draft(".dockerignore", root_dir)
+    initialize_file_from_draft(".docker-compose.yml", root_dir)
     create_vultr_deploy_yml_from_draft()
 
 

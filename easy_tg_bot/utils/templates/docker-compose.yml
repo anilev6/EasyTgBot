@@ -1,0 +1,13 @@
+version: '3.12'
+
+name: bot
+services:
+  app:
+    build: .
+    volumes:
+      - ${SERVER_DATA_PATH}:${CONTAINER_DATA_PATH}
+    environment:
+    - TG_BOT_NAME=${TG_BOT_NAME}
+    - TG_BOT_TOKEN=${TG_BOT_TOKEN}
+    - TG_MY_ID=${TG_MY_ID}
+    - TG_FILE_FOLDER_PATH=${TG_FILE_FOLDER_PATH}
