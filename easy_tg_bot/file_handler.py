@@ -1,9 +1,9 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 import aiofiles.os
+import os
 
 from .mylogging import logger, get_time
-from . import settings
 
 
 class FileHandler:
@@ -27,14 +27,15 @@ class FileHandler:
         file_name = self.prefix + "_from_" + get_time(string=True)
         file_path = f"{file_name}.{file_extension}"
         new_file = await update.message.effective_attachment.get_file()
-        await new_file.download_to_drive(settings.TG_FILE_FOLDER_PATH + file_path)
+        await new_file.download_to_drive("./data/" + file_path)
         return file_path
 
     async def delete_file(self, file_path):
         if file_path == self.default_path:
             return  # deleting of the example file does nothing
         try:
-            await aiofiles.os.remove(settings.TG_FILE_FOLDER_PATH + file_path)
+            path = os.path.join("./data", file_path)
+            await aiofiles.os.remove(path)
             logger.info(f"Successfully deleted file: {file_path}")
         except OSError as e:
             logger.error(
@@ -46,7 +47,8 @@ class FileHandler:
         self, update: Update, context: CallbackContext, file_path
     ):  
         try:
-            with open(settings.TG_FILE_FOLDER_PATH + file_path, "rb") as file:
+            path = os.path.join("./data", file_path)
+            with open(path, "rb") as file:
                 message = await context.bot.send_document(
                     chat_id=update.effective_chat.id,
                     document=file,
@@ -81,9 +83,8 @@ class FileHandler:
     def put_file_iterable(self, context: CallbackContext):
         """use only after refreshing path"""
         path = self.get_path(context)
-        context.bot_data[self.key_to_iter] = self.read_file(
-            settings.TG_FILE_FOLDER_PATH + path
-        )
+        path = os.path.join("./data", path)
+        context.bot_data[self.key_to_iter] = self.read_file(path)
 
     def get_file_iterable(self, context: CallbackContext):
         if not context.bot_data.get(self.key_to_iter):

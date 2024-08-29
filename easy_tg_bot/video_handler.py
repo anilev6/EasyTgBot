@@ -1,8 +1,8 @@
 import aiofiles
+import os
 
 from .mylogging import logger
 from .file_handler import FileHandler
-from . import settings
 
 
 class VideoFileHandler(FileHandler):
@@ -14,7 +14,8 @@ class VideoFileHandler(FileHandler):
     async def delete_file(self, file_path):
         if file_path is not None:
             try:
-                await aiofiles.os.remove(settings.TG_FILE_FOLDER_PATH + file_path)
+                path = os.path.join("./data", file_path)
+                await aiofiles.os.remove(path)
                 logger.info(f"Successfully deleted video: {file_path}")
             except OSError as e:
                 logger.error(f"Error deleting video {file_path}: {e.strerror}")

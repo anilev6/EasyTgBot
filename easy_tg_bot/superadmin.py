@@ -83,7 +83,7 @@ async def database(update, context):
         data_buffer.write(json.dumps(data, indent=4, default=str).encode())
         data_buffer.seek(0)
         # Send the files via telegram
-        doc_stem= f"{settings.TG_BOT_NAME}_{name}_data_{time}.json"[:50]
+        doc_stem= f"{settings.BOT_NAME}_{name}_data_{time}.json"[:50]
         await context.bot.send_document(
             chat_id=update.effective_chat.id,
             document=data_buffer,

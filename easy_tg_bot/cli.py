@@ -4,8 +4,6 @@ import os
 from .mylogging import logger
 from .utils.init_templates import initialize_file_from_draft, create_vultr_deploy_yml_from_draft
 from . import settings
-from .utils.run_docker_polling import run_container, create_yaml_file
-from .app import run_webhook_app
 
 
 # Main
@@ -15,27 +13,11 @@ def cli():
     """The CLI tool."""
 
 
-# Utils
-def clear_env_variables():
-    """
-    Clears all environment variables set by the .env file.
-    Relevant keys start with "TG_".
-    """
-    for key in os.environ:
-        if key.startswith("TG_"):
-            os.putenv(key, "")
-            # print(f"CLEARED ENV: {key}")
-
-
 # Builds neccessary files for the developer and runs polling
-# @click.option("--upd-env", is_flag=True, help="Clear old env. var. configuration")
 @click.option("--docker", is_flag=True, help="Deploy as a Docker container; env vars from .env")
 @cli.command()
 def run(docker):
-    # make it read .env file every time at least for TG_
-    clear_env_variables()
-
-    root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
+    root_dir = "./data"
     initialize_file_from_draft("text.xlsx", root_dir)
 
     root_dir = os.getcwd()
@@ -46,8 +28,13 @@ def run(docker):
         initialize_file_from_draft("Dockerfile", root_dir)
         initialize_file_from_draft(".dockerignore", root_dir)
         initialize_file_from_draft("docker-compose.yml", root_dir)
-        # create_yaml_file()
-        run_container()
+        run_command = f"docker-compose up"
+        print(f"Executing: {run_command}")
+        run_status = os.system(run_command)
+        if run_status != 0:
+            print("Failed to run Docker container.")
+            return
+        print("Container started successfully.")
         return
     # poetry ads
     try:
@@ -56,20 +43,11 @@ def run(docker):
         logger.error(f"Please install poetry, or launch main.py directly yourself. Sorry! Error:\n{e}")
 
 
-# Set the webhook for a Telegram Bot
-@click.option("--token", default=settings.TG_BOT_TOKEN)
-@click.option("--url", default=settings.TG_WEBHOOK_URL)
+# Get the webhook info for a Telegram Bot
+@click.option("--token", default=settings.BOT_TOKEN)
 @cli.command()
-def set_webhook(token, url):
-    os.system(f"curl -X POST https://api.telegram.org/bot{token}/setWebhook?url={url}")
-
-
-@cli.command()
-def webhook():
-    try:
-        run_webhook_app()
-    except Exception as e:
-        logger.error(f"Error in webhook:\n{e}")
+def get_webhook_info(token):
+    os.system(f"curl -X POST https://api.telegram.org/bot{token}/getWebhookInfo")
 
 
 @cli.command()

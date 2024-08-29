@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "easy-tg-bot"
-version = "0.2.6"
+version = "0.2.7"
 description = "My Telegram Framework"
 authors = ["ani <125677472+anilev6@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-python-dotenv = "^1.0.1"
 python-telegram-bot = "^21.4"
 aiofiles = "^24.1.0"
 pandas = "^2.2.2"
@@ -16,7 +15,6 @@ click = "^8.1.7"
 pyyaml = "^6.0.2"
 fastapi = "^0.112.1"
 uvicorn = "^0.30.6"
-pyngrok = "^7.2.0"
 
 [tool.poetry.scripts]
 easy-tg-bot = "easy_tg_bot.cli:cli"

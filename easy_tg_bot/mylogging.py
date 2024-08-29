@@ -14,15 +14,19 @@ import functools
 from . import settings
 
 
-NAME = settings.TG_FILE_FOLDER_PATH + f"{settings.TG_BOT_NAME}.log"
+# Initialize the data folder
+root_dir = "./data"
+if not os.path.exists(root_dir):
+        os.makedirs(root_dir)
+
+NAME = os.path.join(root_dir, f"{settings.BOT_NAME}.log")
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
-
 # Time convention
 def get_time(string=False):
-    if settings.TG_TIME_ZONE:
-        time = datetime.now(tz=pytz.timezone(str(settings.TG_TIME_ZONE)))
+    if settings.TIME_ZONE:
+        time = datetime.now(tz=pytz.timezone(str(settings.TIME_ZONE)))
     else:
         time = datetime.now()
     if string:

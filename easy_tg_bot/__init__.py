@@ -44,7 +44,7 @@ __version__ = "0.1.3"
 from .decorators import message_handler
 __version__ = "0.1.4"
 from .app import application
-from .settings import get_secret_by_name, default_roles
+from .settings import get_secret, default_roles
 __version__ = "0.1.5"
 # for adding the handlers on init automatically
 from .mail_users_conv import message_mailing_conv_handler
@@ -53,10 +53,15 @@ from . import error
 __version__ = "0.1.9"
 from .send import send_message
 __version__ = "0.2.1" 
-from .app import run_webhook_app
 # New command in cli for deployment in vultr! easy-tg-bot vultr
 # requires a vultr server with docker installed and vultr container registry
-__version__ = "0.2.2"  # bug fix
+__version__ = "0.2.7"
+# get_secret_by_name is deprecated
+# set-webhook command is deprecated
+# get-webhook-info command is added
+# variables renamed!
+from .app import run_webhook_uvicorn
+
 # easy-tg-bot webhook
 # TODO
 # - limiter;

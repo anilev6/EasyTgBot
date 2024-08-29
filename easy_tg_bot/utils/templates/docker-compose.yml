@@ -5,9 +5,18 @@ services:
   app:
     build: .
     volumes:
-      - ${SERVER_DATA_PATH}:${CONTAINER_DATA_PATH}
+      - ./data:/usr/src/app/data
+      - ./ssl:/usr/src/app/ssl
     environment:
-    - TG_BOT_NAME=${TG_BOT_NAME}
-    - TG_BOT_TOKEN=${TG_BOT_TOKEN}
-    - TG_MY_ID=${TG_MY_ID}
-    - TG_FILE_FOLDER_PATH=${TG_FILE_FOLDER_PATH}
+    # necessary environment variables
+    - BOT_TOKEN=${BOT_TOKEN}
+    - BOT_NAME=${BOT_NAME}    
+    - MY_ID=${MY_ID}
+    # optional environment variables
+    - TIME_ZONE=${TIME_ZONE}
+    # optional (webhook)
+    - WEBHOOK_URL=${WEBHOOK_URL}
+    - CERT_FILE_PATH=./ssl/selfsigned.pem
+    - SECRET_TOKEN=${SECRET_TOKEN}
+    - PORT=${PORT}
+    - LISTEN=${LISTEN}

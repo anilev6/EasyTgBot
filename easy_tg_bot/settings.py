@@ -1,47 +1,61 @@
 import os
-from dotenv import load_dotenv
 
 from .utils.init_templates import initialize_file_from_draft
 
 
 # Get sectret
-def get_secret_by_name(name: str, default=None):
-    result = os.getenv(name)
-    if not result and default is None: 
+def read_env(file: bool):
+    """Load environment variables from a .env file or from the system."""
+    if file:
+        env_vars = {}
+        path = os.path.join(os.getcwd(), ".env")
+        with open(path, "r") as file:
+            for line in file:
+                if line.strip() and not line.startswith("#"):
+                    k, v = line.strip().split("=")
+                    env_vars[k] = v
+        return env_vars
+    return dict(os.environ)
+
+
+def get_secret_by_name(name: str, default = None, env_file = False) -> str:
+    """Leave default = None to raise an error if the variable is not found."""
+    if env_file:
         if not os.path.exists(os.path.join(os.getcwd(), ".env")):
             initialize_file_from_draft(".env", os.getcwd())
-            raise Exception("No .env file found in the current working directory. Please fill .env file.")
-        env_result = load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True, verbose=True)
-        if not env_result:
-            raise ValueError("Error initializing .env")
-        result = os.getenv(name)
-        if not result:
-            raise ValueError(f"Error initializing env variable: {name}")
-    return result or default
+            raise Exception(
+                "No .env file found in the current working directory. Please fill .env file."
+            )
+    vars = read_env(env_file)
+    result = vars.get(name, default)
+    if result is None:
+        raise ValueError(f"Error initializing env variable: {name}")
+    return result
+
+
+def get_secret(name: str, default=None):
+    """Leave default = None to raise an error if the variable is not found."""
+    try:
+        result = get_secret_by_name(name, default, env_file = False)
+    except ValueError:
+        result = get_secret_by_name(name, default, env_file = True)
+    return result
+
 
 # TG creds
-TG_BOT_NAME = get_secret_by_name("TG_BOT_NAME")
-TG_BOT_TOKEN = get_secret_by_name("TG_BOT_TOKEN")
+BOT_NAME = get_secret("BOT_NAME")
+BOT_TOKEN = get_secret("BOT_TOKEN")
 
 # Optional
-TG_TIME_ZONE = get_secret_by_name("TG_TIME_ZONE", "")
-
 # File storage/mount
-TG_FILE_FOLDER_PATH = get_secret_by_name("TG_FILE_FOLDER_PATH", "")
-
-# Webhook
-TG_WEBHOOK_URL = get_secret_by_name(
-    "TG_WEBHOOK_URL", ""
-)
-TG_WEBHOOK_HOST = get_secret_by_name("TG_WEBHOOK_HOST", "0.0.0.0")
-TG_WEBHOOK_PORT = int(get_secret_by_name("TG_WEBHOOK_PORT", "80"))
+TIME_ZONE = get_secret("TIME_ZONE", "")
 
 # Roles
 DEFAULT_ROLES_DICT = {}
 
 # Possible values: superadmin, admin, user, banned
 def default_roles(roles):
-    DEFAULT_ROLES_DICT.update({str(get_secret_by_name(k)): v for k, v in roles.items()})
+    DEFAULT_ROLES_DICT.update({str(get_secret(k)): v for k, v in roles.items()})
 
 def get_default_role(user_id):
     return DEFAULT_ROLES_DICT.get(str(user_id), "user")

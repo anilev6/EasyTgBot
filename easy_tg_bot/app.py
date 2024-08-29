@@ -9,7 +9,6 @@ from telegram import Update
 from fastapi import FastAPI, Request, Response
 from http import HTTPStatus
 import uvicorn
-from pyngrok import ngrok
 
 # Suppress uvicorn logger
 import logging
@@ -62,15 +61,16 @@ class MyApplication(Application):
 
 # --------------------------------------------TELEGRAM APP---------------------------------
 def prepare_app():
-    root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd() 
+    root_dir = "./data"
     initialize_file_from_draft("text.xlsx", root_dir)
     persistence = PicklePersistence(
-        filepath=f"{settings.TG_FILE_FOLDER_PATH}{settings.TG_BOT_NAME}Persistence", on_flush=True
+        filepath=os.path.join(root_dir, f"{settings.BOT_NAME}Persistence"),
+        on_flush=True,
     )
     application = (
         ApplicationBuilder()
         .application_class(MyApplication)
-        .token(settings.TG_BOT_TOKEN)
+        .token(settings.BOT_TOKEN)
         .persistence(persistence)
         .build()
     )
@@ -114,15 +114,16 @@ def lambda_handler(event, context):
 
 # Vultr and others
 def ptb_for_webhook():
+    root_dir = "./data"
     persistence = PicklePersistence(
-        filepath=f"{settings.TG_FILE_FOLDER_PATH}{settings.TG_BOT_NAME}Persistence",
+        filepath=os.path.join(root_dir, f"{settings.BOT_NAME}Persistence"),
         on_flush=True,
     )
     ptb = (
         ApplicationBuilder()
         .application_class(MyApplication)
         .updater(None)
-        .token(settings.TG_BOT_TOKEN)
+        .token(settings.BOT_TOKEN)
         .persistence(persistence)
         .read_timeout(7)
         .get_updates_read_timeout(42)
@@ -131,13 +132,17 @@ def ptb_for_webhook():
     add_handlers(ptb)
     return ptb
 
-def app_for_webhook(url):
-    root_dir = settings.TG_FILE_FOLDER_PATH or os.getcwd()
-    initialize_file_from_draft("text.xlsx", root_dir)
 
+def app_for_webhook(url, cert_file_location=None, secret_token=None):
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI):
-        await app.ptb.bot.setWebhook(url)
+        if cert_file_location is None:
+            await app.ptb.bot.setWebhook(url=url, secret_token=secret_token)
+        else:
+            with open(cert_file_location, "r") as cert_file:
+                await app.ptb.bot.setWebhook(
+                    url=url, certificate=cert_file, secret_token=secret_token
+                )
         async with app.ptb as ptb:
             await ptb.start()
             yield
@@ -145,7 +150,7 @@ def app_for_webhook(url):
 
     # Initialize FastAPI app (similar to Flask)
     app = FastAPI(lifespan=lifespan)
-    # TODO Limiter
+    # TODO Limiter ? or nginx set up
     app.ptb = ptb_for_webhook()
 
     @app.post("/")
@@ -158,19 +163,71 @@ def app_for_webhook(url):
         except Exception as e:
             logger.error(f"Error in process_update: {e}")
             return Response(status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+
     return app
 
-def run_webhook_app():
-    host = settings.TG_WEBHOOK_HOST
-    port = settings.TG_WEBHOOK_PORT
-    token = settings.TG_BOT_TOKEN
-    url = settings.TG_WEBHOOK_URL
-    if not url:
-        logger.info("No url found, setting up ngrok...")
-        url = ngrok.connect(port).public_url
-    if not all([host, port, token]):
-        raise ValueError("Please fill all the necessary settings in settings.py")
-    if not url:
-        raise ValueError("Please check your ngrok connection")
-    app = app_for_webhook(url)
-    uvicorn.run(app, host=host, port=port, access_log=False)
+# Launch
+@time_log_decorator
+def run_webhook_uvicorn(access_log=True):
+    """
+    - requires ssl folder;
+
+    - env:
+        WEBHOOK_URL
+        CERT_FILE_PATH
+        LISTEN
+        PORT
+        SECRET_TOKEN (optional)
+
+    - Nginx set up if there is a secret token:
+        # nginx.conf
+        location / {
+            proxy_pass http://testbot:88;
+            proxy_set_header X-Telegram-Bot-Api-Secret-Token your_secret_token;
+        }
+
+    - Check webhook status
+        https://api.telegram.org/bot<your_bot_token>/getWebhookInfo
+    """
+    # secrets
+    webhook_url = settings.get_secret("WEBHOOK_URL")
+    cert_file_path = settings.get_secret("CERT_FILE_PATH", "") or None
+    # optional
+    listen = settings.get_secret("LISTEN", "0.0.0.0")  # we're in a docker container
+    port = settings.get_secret("PORT", "80")
+    secret_token = settings.get_secret("SECRET_TOKEN", "") or None
+
+    # run
+    app = app_for_webhook(webhook_url, cert_file_path, secret_token)
+    uvicorn.run(app, host=listen, port=int(port), access_log=access_log)
+
+
+# TODO big load solution
+def run_webhook_gunicorn(env_file=False):
+    """This might interfere with the convrsation handlers and spawn separate contexts."""
+    webhook_url = settings.get_secret("WEBHOOK_URL", env_file=env_file)
+    cert_file_path = settings.get_secret("CERT_FILE_PATH", env_file=env_file)
+    listen = settings.get_secret(
+        "LISTEN", env_file=env_file
+    )  # we're in a docker container
+    port = settings.get_secret("PORT", env_file=env_file)
+    # optional
+    secret_token = settings.get_secret("SECRET_TOKEN", env_file=env_file)  # or None
+
+    global app
+    app = app_for_webhook(webhook_url, cert_file_path, secret_token)
+
+    file_name = __file__.split("/")[-1].split(".")[0]
+    command = " ".join(
+        [
+            "gunicorn",
+            "-w",
+            "4",
+            "-k",
+            "uvicorn.workers.UvicornWorker",
+            "-b",
+            f"{listen}:{port}",
+            f"{file_name}:app",
+        ]
+    )
+    os.system(command)

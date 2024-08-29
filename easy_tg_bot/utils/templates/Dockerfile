@@ -17,5 +17,8 @@ RUN poetry config virtualenvs.create false && \
 # Copy the rest of the application's code
 COPY . .
 
+# (Optional) expose the port the app runs on
+# EXPOSE 80
+
 # Run application when the container launches
 CMD ["python", "main.py"]

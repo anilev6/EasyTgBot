@@ -7,6 +7,8 @@ from telegram.ext import (
     filters,
 )
 
+import os
+
 from .mylogging import logger
 from .utils.utils import get_keyboard, end_conversation
 from .send import send_message
@@ -21,7 +23,6 @@ from .text_handler import text_handler
 
 # connect the handlers
 from .decorators import register_conversation_handler
-from . import settings
 
 # annoying warning
 from warnings import filterwarnings
@@ -120,9 +121,8 @@ class PutFileConversation:
 
         try:
             file_path = await self.file_handler.download_file(update)
-            result = self.file_handler.validate_file(
-                settings.TG_FILE_FOLDER_PATH + file_path
-            )
+            path = os.path.join("./data", file_path)
+            result = self.file_handler.validate_file(path)
             code, message_text_id = (
                 result[0],
                 result[1],

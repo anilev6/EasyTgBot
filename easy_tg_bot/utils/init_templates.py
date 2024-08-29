@@ -11,6 +11,9 @@ DRAFTS_FOLDER_PATH = os.path.join(
 
 def initialize_file_from_draft(file_name, root_dir):
     # Create files
+    if not os.path.exists(root_dir):
+        os.makedirs(root_dir)
+
     output_file = os.path.join(root_dir, file_name)
     if os.path.exists(output_file):
         return
