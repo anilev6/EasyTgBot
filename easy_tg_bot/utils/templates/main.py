@@ -12,3 +12,4 @@ async def help(update, context):
 if __name__=="__main__":
     easy_tg_bot.start.START_DONE_CALLBACK = help
     easy_tg_bot.telegram_bot_polling()
+    # easy_tg_bot.run_webhook_uvicorn()
