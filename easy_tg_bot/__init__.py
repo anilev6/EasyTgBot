@@ -59,10 +59,9 @@ __version__ = "0.2.7"
 # get_secret_by_name is deprecated
 # set-webhook command is deprecated
 # get-webhook-info command is added
+# generate-secret-token command is added
 # variables renamed!
-from .app import run_webhook_uvicorn
-
-# easy-tg-bot webhook
+from .app import run_webhook_uvicorn, run_webhook_gunicorn
 # TODO
 # - limiter;
 # - Forget user /forget_me; Delete user;

@@ -50,6 +50,14 @@ def get_webhook_info(token):
     os.system(f"curl -X POST https://api.telegram.org/bot{token}/getWebhookInfo")
 
 
+# Generate a secret token for Telegram
+@cli.command()
+def generate_secret_token():
+    import secrets
+    token = secrets.token_hex(16)
+    logger.info(f"Generated secret token: {token}")
+
+
 @cli.command()
 def vultr():
     """Deploys to Vultr using Actions."""
