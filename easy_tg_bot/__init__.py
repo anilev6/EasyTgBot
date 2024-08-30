@@ -62,6 +62,9 @@ __version__ = "0.2.7"
 # generate-secret-token command is added
 # variables renamed!
 from .app import run_webhook_uvicorn, run_webhook_gunicorn
+__version__ = "0.2.8"
+# srv bring-files-to-server and srv bring-files-from-server commands added
+# srv bring-files-to-server --debug
 # TODO
 # - limiter;
 # - Forget user /forget_me; Delete user;

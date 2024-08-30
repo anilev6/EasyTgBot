@@ -38,7 +38,6 @@ jobs:
 
           # Volumes configuration
           mkdir -p ${{ secrets.BOT_NAME }}
-          mkdir -p ${{ secrets.BOT_NAME }}/data
           
           # Clear previous containers
           docker stop ${{ secrets.APP_NAME }} || true
@@ -50,10 +49,15 @@ jobs:
           docker pull sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.APP_NAME }}:latest
           
           docker run -d --name ${{ secrets.APP_NAME }} \
+          --network my-network \
           -v /${{ secrets.VULTR_SERVER_USER }}/${{ secrets.BOT_NAME }}:/usr/src/app/data \
+          -v /${{ secrets.VULTR_SERVER_USER }}/nginx/ssl:/usr/src/app/ssl \
           -e BOT_NAME=${{ secrets.BOT_NAME }} \
           -e BOT_TOKEN=${{ secrets.BOT_TOKEN }} \
           -e MY_ID=${{ secrets.MY_ID }} \
+          -e WEBHOOK_URL=${{ secrets.WEBHOOK_URL }} \
+          -e SECRET_TOKEN=${{ secrets.SECRET_TOKEN }} \
+          -e CERT_FILE_PATH=./ssl/selfsigned.pem \
           sjc.vultrcr.com/${{ secrets.CONTAINER_REGISTRY_NAME }}/${{ secrets.APP_NAME }}:latest
 
           # Clear unused
