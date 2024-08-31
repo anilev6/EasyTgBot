@@ -28,6 +28,7 @@ from . import settings
 
 # add handlers just with decorators throughout the code
 from .decorators import add_handlers
+from .error import error
 
 
 # -------------------------------------------TELEGRAM BOT DB------------------------------
@@ -85,6 +86,9 @@ application = prepare_app()
 def telegram_bot_polling(debug = False):
     # Add handlers; needs to be called at the end for the decorators reason
     add_handlers(application, debug)
+    # Universal eror handler 
+    # TODO custom or this one
+    application.add_error_handler(error)
     # Ignore exception when Ctrl-C is pressed
     with contextlib.suppress(KeyboardInterrupt):  
         application.run_polling()
@@ -95,6 +99,9 @@ def telegram_bot_polling(debug = False):
 async def process_update(event, context):
     # Add handlers; needs to be called at the end for the decorators reason
     add_handlers(application)
+    # Universal eror handler 
+    # TODO custom or this one
+    application.add_error_handler(error)
     try:
         await application.initialize() # .start() ?
         await application.process_update(
@@ -130,6 +137,9 @@ def ptb_for_webhook():
         .build()
     )
     add_handlers(ptb)
+    # Universal eror handler 
+    # TODO custom or this one
+    application.add_error_handler(error)
     return ptb
 
 
