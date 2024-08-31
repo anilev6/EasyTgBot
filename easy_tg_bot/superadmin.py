@@ -7,7 +7,6 @@ from .send import send_message
 from .roles import get_all_people, get_people
 from .decorators import command
 from .mylogging import get_time
-from . import app
 from . import settings
 
 
@@ -73,9 +72,9 @@ async def database(update, context):
     for name, data in zip(
         ["bot", "chat", "user"],
         [
-            app.application.bot_data,
-            app.application.chat_data,
-            app.application.user_data,
+            context.application.bot_data,
+            context.application.chat_data,
+            context.application.user_data,
         ],
     ):
         data = dict(data)

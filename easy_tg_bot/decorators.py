@@ -9,6 +9,7 @@ from functools import wraps
 from uuid import uuid1
 
 from .roles import check_role, DEFAULT_ALLOWED_ROLES
+from .error import error
 
 
 COMMAND_HANDLERS = {}
@@ -90,7 +91,11 @@ def register_conversation_handler(handler):
 
 
 def add_handlers(application, debug=False):
-    # convos have to go first
+    # Universal eror handler 
+    # TODO custom or this one
+    application.add_error_handler(error)
+
+    # Convos have to go first
     for _, h in CONVERSATION_HANDLERS.items():
         application.add_handler(h)
 
