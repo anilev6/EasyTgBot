@@ -133,9 +133,15 @@ def ptb_for_webhook():
     return ptb
 
 
-def app_for_webhook(url, cert_file_location=None, secret_token=None):
+def app_for_webhook(url, cert_file_location=None, secret_token=None, on_startup_func=None):
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI):
+        # On startup - run a simple function on start
+        on_startup_func = app.on_startup_func
+        if callable(on_startup_func):
+            on_startup_func()
+
+        # Set webhook
         if cert_file_location is None:
             await app.ptb.bot.setWebhook(url=url, secret_token=secret_token)
         else:
@@ -143,15 +149,18 @@ def app_for_webhook(url, cert_file_location=None, secret_token=None):
                 await app.ptb.bot.setWebhook(
                     url=url, certificate=cert_file, secret_token=secret_token
                 )
+        
+        # On shutdown stop the bot
         async with app.ptb as ptb:
             await ptb.start()
             yield
             await ptb.stop()
 
     # Initialize FastAPI app (similar to Flask)
-    app = FastAPI(lifespan=lifespan)
     # TODO Limiter ? or nginx set up
+    app = FastAPI(lifespan=lifespan)
     app.ptb = ptb_for_webhook()
+    app.on_startup_func = on_startup_func
 
     @app.post("/")
     async def process_update(request: Request):
@@ -168,7 +177,7 @@ def app_for_webhook(url, cert_file_location=None, secret_token=None):
 
 # Launch
 @time_log_decorator
-def run_webhook_uvicorn(access_log=True):
+def run_webhook_uvicorn(access_log=True, on_startup_func=None):
     """
     - requires ssl folder;
 
@@ -198,12 +207,12 @@ def run_webhook_uvicorn(access_log=True):
     secret_token = settings.get_secret("SECRET_TOKEN", "") or None
 
     # run
-    app = app_for_webhook(webhook_url, cert_file_path, secret_token)
+    app = app_for_webhook(webhook_url, cert_file_path, secret_token, on_startup_func=on_startup_func)
     uvicorn.run(app, host=listen, port=int(port), access_log=access_log)
 
 
 # TODO big load solution
-def run_webhook_gunicorn(env_file=False):
+def run_webhook_gunicorn(env_file=False, on_startup_func=None):
     """This might interfere with the convrsation handlers and spawn separate contexts."""
     webhook_url = settings.get_secret("WEBHOOK_URL", env_file=env_file)
     cert_file_path = settings.get_secret("CERT_FILE_PATH", env_file=env_file)
@@ -215,7 +224,7 @@ def run_webhook_gunicorn(env_file=False):
     secret_token = settings.get_secret("SECRET_TOKEN", env_file=env_file)  # or None
 
     global app
-    app = app_for_webhook(webhook_url, cert_file_path, secret_token)
+    app = app_for_webhook(webhook_url, cert_file_path, secret_token, on_startup_func=on_startup_func)
 
     file_name = __file__.split("/")[-1].split(".")[0]
     command = " ".join(

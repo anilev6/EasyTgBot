@@ -65,6 +65,8 @@ from .app import run_webhook_uvicorn, run_webhook_gunicorn
 __version__ = "0.2.8"
 # srv bring-files-to-server and srv bring-files-from-server commands added
 # srv bring-files-to-server --debug
+__version__ = "0.2.9"
+# on_startup_func kwarg added to run_webhook_uvicorn/run_webhook_gunicorn; simple function, no args;
 # TODO
 # - limiter;
 # - Forget user /forget_me; Delete user;
