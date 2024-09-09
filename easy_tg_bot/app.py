@@ -124,7 +124,7 @@ def ptb_for_webhook():
     root_dir = "./data"
     persistence = PicklePersistence(
         filepath=os.path.join(root_dir, f"{settings.BOT_NAME}Persistence"),
-        on_flush=True,
+       # on_flush=True,
     )
     ptb = (
         ApplicationBuilder()
@@ -167,7 +167,6 @@ def app_for_webhook(url, cert_file_location=None, secret_token=None, on_startup_
             await ptb.stop()
 
     # Initialize FastAPI app (similar to Flask)
-    # TODO Limiter ? or nginx set up
     app = FastAPI(lifespan=lifespan)
     app.ptb = ptb_for_webhook()
     app.on_startup_func = on_startup_func
