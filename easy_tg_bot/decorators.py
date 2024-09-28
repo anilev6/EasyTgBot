@@ -90,7 +90,7 @@ def register_conversation_handler(handler):
 
 
 def add_handlers(application, debug=False):
-    # convos have to go first
+    # Convos have to go first
     for _, h in CONVERSATION_HANDLERS.items():
         application.add_handler(h)
 

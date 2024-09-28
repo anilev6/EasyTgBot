@@ -2,8 +2,6 @@ import hashlib
 from datetime import timedelta
 from .mylogging import logger, get_time
 from .superadmin import send_to_superadmin
-from . import app
-
 
 # Whithin Telegram
 async def error(update, context, cache={}, max_cache_size = 30, cooldown_minutes = 30) -> None:
@@ -55,5 +53,3 @@ async def maybe_notify_superadmin(update, context, error_msg):
     except Exception as e:
         logger.error(f"General error handler - error notifying superadmin about the error:\n{e}")
     return 
-
-app.application.add_error_handler(error)

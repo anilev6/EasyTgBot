@@ -65,7 +65,9 @@ from .app import run_webhook_uvicorn, run_webhook_gunicorn
 __version__ = "0.2.8"
 # srv bring-files-to-server and srv bring-files-from-server commands added
 # srv bring-files-to-server --debug
-__version__ = "0.2.9"
+__version__ = "0.3.2"
+# on_startup_func kwarg added to run_webhook_uvicorn/run_webhook_gunicorn; simple function, no args;
+__version__ = "0.3.3"
 # - Hung convo bug fixed
 # TODO
 # - Forget user /forget_me; Delete user;
