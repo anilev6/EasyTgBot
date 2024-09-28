@@ -60,6 +60,7 @@ class PutVideoConversation(PutFileConversation):
             fallbacks=[CallbackQueryHandler(self.end, pattern=r"^end$")],
             name=f"put_{self.file_handler.file_key}",
             persistent=True,
+            allow_reentry=True,
         )
 
     async def start_conversation(self, update: Update, context: CallbackContext):

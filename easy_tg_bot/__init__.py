@@ -65,15 +65,14 @@ from .app import run_webhook_uvicorn, run_webhook_gunicorn
 __version__ = "0.2.8"
 # srv bring-files-to-server and srv bring-files-from-server commands added
 # srv bring-files-to-server --debug
+__version__ = "0.2.9"
+# - Hung convo bug fixed
 # TODO
-# - limiter;
 # - Forget user /forget_me; Delete user;
-# - Hung convo bug - test
 # - Connection error handler
 # - Limiter
 # - Replace 'nan' with None
 # - Small Bug fix: Error in not_data_consent ?
 # - Bug fix: None.log occasionally on run
-# - /restart_me
 # - optional number share
 # - cache errors; cache messages;

@@ -230,9 +230,7 @@ async def send_something_to_users(update, context, get_current_user_group_ids_fu
 # Object
 message_mailing_conv_handler = ConversationHandler(
     entry_points=[
-        CallbackQueryHandler(
-            start_conversation, pattern=f"^{MAILING_BUTTON}$"
-        )
+        CallbackQueryHandler(start_conversation, pattern=f"^{MAILING_BUTTON}$")
     ],
     states={
         INPUT_MESSAGE: [
@@ -255,5 +253,6 @@ message_mailing_conv_handler = ConversationHandler(
     ],
     name="mailing",
     persistent=True,
+    allow_reentry=True,
 )
 register_conversation_handler(message_mailing_conv_handler)

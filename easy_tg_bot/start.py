@@ -147,8 +147,9 @@ start_conv_handler = ConversationHandler(
     fallbacks=[
         MessageHandler(filters.ALL, not_data_consent),
     ],
-    name = "start_command",
-    persistent = True
+    name="start_command",
+    persistent=True,
+    allow_reentry=True,
 )
 
 register_conversation_handler(start_conv_handler)

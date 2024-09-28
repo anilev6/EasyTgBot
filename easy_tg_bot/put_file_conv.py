@@ -63,7 +63,8 @@ class PutFileConversation:
             },
             fallbacks=[CallbackQueryHandler(self.end, pattern=r"^end$")],
             name=f"put_{self.file_handler.file_key}",
-            persistent=True
+            persistent=True,
+            allow_reentry=True,
         )
 
     async def end(self, update: Update, context: CallbackContext):

@@ -49,6 +49,7 @@ class ManageRoleConverstion:
             ],
             name=self.entry_point,
             persistent=True,
+            allow_reentry=True,
         )
 
     async def cancel(self, update: Update, context: CallbackContext):
